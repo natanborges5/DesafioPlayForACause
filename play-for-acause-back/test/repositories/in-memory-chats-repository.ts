@@ -7,7 +7,6 @@ import { Chat } from "@/domain/enterprise/entities/chat"
 
 export class InMemoryChatsRepository implements ChatsRepository {
     constructor(
-        private chatMessagesRepository: ChatMessagesRepository,
     ) {}
     async findManyRecent({ page }: PaginationParams) {
         const chats = this.items
@@ -38,8 +37,5 @@ export class InMemoryChatsRepository implements ChatsRepository {
             (item) => item.id === chat.id,
         )
         this.items.splice(itemIndex, 1)
-        this.chatMessagesRepository.deleteManyByChatId(
-            chat.id.toString(),
-        )
     }
 }

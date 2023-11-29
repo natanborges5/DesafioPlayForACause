@@ -6,24 +6,18 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export interface MessageProps {
     content: string
-    senderId: UniqueEntityID
-    receiverId: UniqueEntityID
-    groupId?: UniqueEntityID
+    authorId: UniqueEntityID
     createdAt: Date
-    updatedAt?: Date
+    updatedAt?: Date | null
 }
-export class Message extends Entity<MessageProps> {
+export abstract class Message<Props extends MessageProps> extends Entity<Props> {
     @ApiProperty({ example: 'Hellow world', description: 'Conteudo da mensagem' })
     get content() {
         return this.props.content
     }
     @ApiProperty({ example: new UniqueEntityID().toString(), description: 'Id do sender' })
-    get senderId() {
-        return this.props.senderId
-    }
-    @ApiProperty({ example: new UniqueEntityID().toString(), description: 'Id do receiver' })
-    get receiverId() {
-        return this.props.receiverId
+    get authorId() {
+        return this.props.authorId
     }
     get createdAt() {
         return this.props.createdAt
@@ -37,26 +31,5 @@ export class Message extends Entity<MessageProps> {
     set content(content: string) {
         this.props.content = content
         this.touch()
-    }
-    set senderId(senderId: UniqueEntityID) {
-        this.props.senderId = senderId
-        this.touch()
-    }
-    set receiverId(receiverId: UniqueEntityID) {
-        this.props.receiverId = receiverId
-        this.touch()
-    }
-    static create(
-        props: Optional<MessageProps, 'createdAt' | "groupId">,
-        id?: UniqueEntityID,
-    ) {
-        const message = new Message(
-            {
-                ...props,
-                createdAt: props.createdAt ?? new Date(),
-            },
-            id,
-        )
-        return message
     }
 }

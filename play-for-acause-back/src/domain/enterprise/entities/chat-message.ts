@@ -1,19 +1,26 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { Message, MessageProps } from './message'
+import { Optional } from '@/core/types/optional'
 
-export interface ChatMessagesProps {
+export interface ChatMessageProps extends MessageProps {
     chatId: UniqueEntityID
-    messageId: UniqueEntityID
 }
-export class ChatMessage extends AggregateRoot<ChatMessagesProps> {
+export class ChatMessage extends Message<ChatMessageProps> {
     get chatId() {
         return this.props.chatId
     }
-    get messageId() {
-        return this.props.messageId
-    }
-    static create(props: ChatMessagesProps, id?: UniqueEntityID) {
-        const chatMessage = new ChatMessage(props, id)
-        return chatMessage
+    static create(
+        props: Optional<ChatMessageProps, 'createdAt'>,
+        id?: UniqueEntityID,
+    ) {
+        const message = new ChatMessage(
+            {
+                ...props,
+                createdAt: new Date(),
+            },
+            id,
+        )
+        return message
     }
 }

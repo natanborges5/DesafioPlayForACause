@@ -1,12 +1,10 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
 import { ChatUserList } from './chat-user-list'
-import { ChatMessageList } from './chat-message-list'
 import { Optional } from '@/core/types/optional'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 export interface ChatProps {
     name: string
     users: ChatUserList
-    messages: ChatMessageList
     createdAt: Date
     updatedAt?: Date | null
 }
@@ -16,9 +14,6 @@ export class Chat extends AggregateRoot<ChatProps> {
     }
     get users() {
         return this.props.users
-    }
-    get messages() {
-        return this.props.messages
     }
     get createdAt() {
         return this.props.createdAt
@@ -34,21 +29,16 @@ export class Chat extends AggregateRoot<ChatProps> {
         this.props.users = users
         this.touch()
     }
-    set messages(messages: ChatMessageList) {
-        this.props.messages = messages
-        this.touch()
-    }
     touch() {
         this.props.updatedAt = new Date()
     }
     static create(
-        props: Optional<ChatProps, 'createdAt' | "messages" | "users">,
+        props: Optional<ChatProps, 'createdAt' | "users">,
         id?: UniqueEntityID,
     ) {
         const chat = new Chat(
             {
                 ...props,
-                messages: props.messages ?? new ChatMessageList(),
                 users: props.users ?? new ChatUserList(),
                 createdAt: props.createdAt ?? new Date(),
             },
