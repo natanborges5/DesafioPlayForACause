@@ -33,6 +33,7 @@ export class CreateChatUseCase {
       });
     });
     chat.users = new ChatUserList(chatUsers);
+    console.log(chat.users.currentItems);
     await this.chatRepository.create(chat);
     return right({
       chat

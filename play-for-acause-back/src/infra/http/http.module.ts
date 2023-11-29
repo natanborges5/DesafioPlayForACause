@@ -5,10 +5,18 @@ import { AuthenticateController } from './controllers/authenticate.controller';
 import { AuthenticateUserUseCase } from '@/domain/application/use-cases/user/authenticate-user';
 import { RegisterUserUseCase } from '@/domain/application/use-cases/user/register-user';
 import { AccountController } from './controllers/account.controller';
+import { ChatController } from './controllers/chat.controller';
+import { CreateChatUseCase } from '@/domain/application/use-cases/chat/create-chat';
+import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-recent-chats';
 
 @Module({
   imports: [DatabaseModule, CryptographyModule],
-  controllers: [AuthenticateController, AccountController],
-  providers: [AuthenticateUserUseCase, RegisterUserUseCase]
+  controllers: [AuthenticateController, AccountController, ChatController],
+  providers: [
+    AuthenticateUserUseCase,
+    RegisterUserUseCase,
+    CreateChatUseCase,
+    FetchRecentChatsUseCase
+  ]
 })
 export class HttpModule {}

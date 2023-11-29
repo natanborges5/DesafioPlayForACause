@@ -9,8 +9,8 @@ export class PrismaUsersRepository implements UsersRepository {
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: {
-        email,
-      },
+        email
+      }
     });
     if (!user) {
       return null;
@@ -19,9 +19,8 @@ export class PrismaUsersRepository implements UsersRepository {
   }
   async create(user: User): Promise<void> {
     const data = PrismaUserMapper.toPrisma(user);
-    console.log(data);
     await this.prisma.user.create({
-      data,
+      data
     });
   }
 }
