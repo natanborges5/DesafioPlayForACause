@@ -8,6 +8,7 @@ export interface MessageProps {
     content: string
     senderId: UniqueEntityID
     receiverId: UniqueEntityID
+    groupId?: UniqueEntityID
     createdAt: Date
     updatedAt?: Date
 }
@@ -46,7 +47,7 @@ export class Message extends Entity<MessageProps> {
         this.touch()
     }
     static create(
-        props: Optional<MessageProps, 'createdAt'>,
+        props: Optional<MessageProps, 'createdAt' | "groupId">,
         id?: UniqueEntityID,
     ) {
         const message = new Message(
