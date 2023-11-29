@@ -15,8 +15,7 @@ model User {
   name     String
   email    String    @unique
   password String
-  Chat     Chat?     @relation(fields: [chatId], references: [id])
-  chatId   String?
+  Chat     Chat[]
   Message  Message[]
 
   @@map("users")

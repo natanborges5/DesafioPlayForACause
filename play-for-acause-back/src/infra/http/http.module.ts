@@ -4,10 +4,11 @@ import { DatabaseModule } from '../database/database.module';
 import { AuthenticateController } from './controllers/authenticate.controller';
 import { AuthenticateUserUseCase } from '@/domain/application/use-cases/user/authenticate-user';
 import { RegisterUserUseCase } from '@/domain/application/use-cases/user/register-user';
+import { AccountController } from './controllers/account.controller';
 
 @Module({
   imports: [DatabaseModule, CryptographyModule],
-  controllers: [AuthenticateController],
+  controllers: [AuthenticateController, AccountController],
   providers: [AuthenticateUserUseCase, RegisterUserUseCase]
 })
 export class HttpModule {}
