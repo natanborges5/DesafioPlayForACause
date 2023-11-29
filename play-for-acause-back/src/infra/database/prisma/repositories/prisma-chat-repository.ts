@@ -37,7 +37,6 @@ export class PrismaChatsRepository implements ChatsRepository {
     });
     for (const user of chat.users.currentItems) {
       const userPrisma = PrismaChatUserMapper.toPrisma(user);
-      console.log(userPrisma);
       await this.prisma.usersOnChats.create({
         data: userPrisma
       });
