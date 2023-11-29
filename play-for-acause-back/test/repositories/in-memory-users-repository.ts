@@ -1,19 +1,23 @@
-import { UsersRepository } from "@/domain/application/repositories/user-repository"
-import { User } from "@/domain/enterprise/entities/user"
-
+import { UsersRepository } from '@/domain/application/repositories/user-repository';
+import { User } from '@/domain/enterprise/entities/user';
 
 export class InMemoryUsersRepository implements UsersRepository {
-    public items: User[] = []
-    async findByEmail(email: string) {
-        const user = this.items.find(
-            (item) => item.email.toString() === email,
-        )
-        if (!user) {
-            return null
-        }
-        return user
+  public items: User[] = [];
+  async findByEmail(email: string) {
+    const user = this.items.find((item) => item.email.toString() === email);
+    if (!user) {
+      return null;
     }
-    async create(user: User) {
-        this.items.push(user)
+    return user;
+  }
+  async findById(id: string) {
+    const user = this.items.find((item) => item.id.toString() === id);
+    if (!user) {
+      return null;
     }
+    return user;
+  }
+  async create(user: User) {
+    this.items.push(user);
+  }
 }

@@ -1,14 +1,20 @@
 import { InMemoryChatsRepository } from 'test/repositories/in-memory-chats-repository';
 import { makeChat } from 'test/factories/make-chat';
 import { FetchRecentChatsUseCase } from './fetch-recent-chats';
+import { InMemoryChatUsersRepository } from 'test/repositories/in-memory-chat-users-repository';
 
 let inMemoryChatsRepository: InMemoryChatsRepository;
+let inMemoryChatUsersRepository: InMemoryChatUsersRepository;
 let sut: FetchRecentChatsUseCase;
 
 describe('Fetch recent chats', () => {
   beforeEach(() => {
     inMemoryChatsRepository = new InMemoryChatsRepository();
-    sut = new FetchRecentChatsUseCase(inMemoryChatsRepository);
+    inMemoryChatUsersRepository = new InMemoryChatUsersRepository();
+    sut = new FetchRecentChatsUseCase(
+      inMemoryChatsRepository,
+      inMemoryChatUsersRepository
+    );
   });
 
   it('Should be able to fetch recent chats', async () => {

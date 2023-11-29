@@ -2,7 +2,7 @@ import { InMemoryChatMessagesRepository } from 'test/repositories/in-memory-chat
 import { InMemoryChatsRepository } from 'test/repositories/in-memory-chats-repository';
 import { MessageOnChatUseCase } from './message-on-chat';
 import { makeChat } from 'test/factories/make-chat';
-import { makeUser } from 'test/factories/make-student';
+import { makeUser } from 'test/factories/make-user';
 
 let inMemoryChatsRepository: InMemoryChatsRepository;
 let inMemoryChatMessagesRepository: InMemoryChatMessagesRepository;
