@@ -1,13 +1,13 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
-import { ApiProperty } from '@nestjs/swagger'
+import { ChatUserList } from './chat-user-list'
+import { ChatMessageList } from './chat-message-list'
 export interface ChatProps {
-    users: string
-    messages: string
+    users: ChatUserList
+    messages: ChatMessageList
     createdAt: Date
     updatedAt?: Date | null
 }
 export class Chat extends AggregateRoot<ChatProps> {
-
     get users() {
         return this.props.users
     }
@@ -20,11 +20,11 @@ export class Chat extends AggregateRoot<ChatProps> {
     get updatedAt() {
         return this.props.updatedAt
     }
-    set users(users: string) {
+    set users(users: ChatUserList) {
         this.props.users = users
         this.touch()
     }
-    set messages(messages: string) {
+    set messages(messages: ChatMessageList) {
         this.props.messages = messages
         this.touch()
     }

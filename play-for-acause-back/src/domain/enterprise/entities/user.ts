@@ -7,9 +7,7 @@ export interface UserProps {
     createdAt: Date
     updatedAt?: Date | null
 }
-export abstract class User<
-    Props extends UserProps,
-> extends AggregateRoot<Props> {
+export class User extends AggregateRoot<UserProps> {
     @ApiProperty({
         example: 'natan borges',
         description: 'The name of the user',
