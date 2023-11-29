@@ -2,12 +2,12 @@ import { AggregateRoot } from '@/core/entities/aggregate-root';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
 import { Optional } from '@/core/types/optional';
 
-export interface ChatUsersProps {
+export interface ChatUserProps {
   chatId: UniqueEntityID;
   userId: UniqueEntityID;
   createdAt: Date;
 }
-export class ChatUser extends AggregateRoot<ChatUsersProps> {
+export class ChatUser extends AggregateRoot<ChatUserProps> {
   get chatId() {
     return this.props.chatId;
   }
@@ -18,7 +18,7 @@ export class ChatUser extends AggregateRoot<ChatUsersProps> {
     return this.props.createdAt;
   }
   static create(
-    props: Optional<ChatUsersProps, 'createdAt'>,
+    props: Optional<ChatUserProps, 'createdAt'>,
     id?: UniqueEntityID
   ) {
     const chatUser = new ChatUser(
