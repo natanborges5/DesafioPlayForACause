@@ -1,13 +1,13 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
+import { Entity } from '@/core/entities/entity'
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { ApiProperty } from '@nestjs/swagger'
 export interface UserProps {
     name: string
     email: string
     password: string
-    createdAt: Date
-    updatedAt?: Date | null
 }
-export class User extends AggregateRoot<UserProps> {
+export class User extends Entity<UserProps> {
     @ApiProperty({
         example: 'natan borges',
         description: 'The name of the user',
@@ -26,25 +26,22 @@ export class User extends AggregateRoot<UserProps> {
     get password() {
         return this.props.password
     }
-    get createdAt() {
-        return this.props.createdAt
-    }
-    get updatedAt() {
-        return this.props.updatedAt
-    }
     set name(name: string) {
         this.props.name = name
-        this.touch()
     }
     set email(email: string) {
         this.props.email = email
-        this.touch()
     }
     set password(password: string) {
         this.props.password = password
-        this.touch()
     }
-    touch() {
-        this.props.updatedAt = new Date()
+    static create(props: UserProps, id?: UniqueEntityID) {
+        const user = new User(
+            {
+                ...props,
+            },
+            id,
+        )
+        return user
     }
 }

@@ -1,4 +1,5 @@
 import { AggregateRoot } from '@/core/entities/aggregate-root'
+import { Entity } from '@/core/entities/entity'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { Optional } from '@/core/types/optional'
 import { ApiProperty } from '@nestjs/swagger'
@@ -10,7 +11,7 @@ export interface MessageProps {
     createdAt: Date
     updatedAt?: Date
 }
-export class Message extends AggregateRoot<MessageProps> {
+export class Message extends Entity<MessageProps> {
     @ApiProperty({ example: 'Hellow world', description: 'Conteudo da mensagem' })
     get content() {
         return this.props.content
