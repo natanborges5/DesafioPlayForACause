@@ -5,7 +5,7 @@ export class ChatPresenter {
     return {
       id: chat.id.toString(),
       title: chat.name,
-      users: chat.users,
+      users: chat.users.listToString(),
       createdAt: chat.createdAt,
       updatedAt: chat.updatedAt
     };
