@@ -16,7 +16,7 @@ export class ChatMessage extends Message<ChatMessageProps> {
     const message = new ChatMessage(
       {
         ...props,
-        createdAt: new Date()
+        createdAt: props.createdAt ?? new Date()
       },
       id
     );

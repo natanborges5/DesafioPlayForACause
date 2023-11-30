@@ -24,7 +24,7 @@ export class ChatUser extends AggregateRoot<ChatUserProps> {
     const chatUser = new ChatUser(
       {
         ...props,
-        createdAt: new Date()
+        createdAt: props.createdAt ?? new Date()
       },
       id
     );
