@@ -4,6 +4,7 @@ import { ChatMessage } from '@/domain/enterprise/entities/chat-message';
 import { ChatMessagesRepository } from '../../repositories/chat-messages-repository';
 import { ChatsRepository } from '../../repositories/chat-repository';
 import { ResourceNotFoundError } from '../errors/resource-not-found-error';
+import { Injectable } from '@nestjs/common';
 
 interface MessageOnChatUseCaseRequest {
   authorId: string;
@@ -16,6 +17,7 @@ type MessageOnChatUseCaseResponse = Either<
     chatMessage: ChatMessage;
   }
 >;
+@Injectable()
 export class MessageOnChatUseCase {
   constructor(
     private chatRepository: ChatsRepository,

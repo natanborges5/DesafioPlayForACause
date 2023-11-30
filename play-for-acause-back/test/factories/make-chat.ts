@@ -1,6 +1,7 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
 import { Chat, ChatProps } from '@/domain/enterprise/entities/chat';
 import { PrismaChatMapper } from '@/infra/database/prisma/mappers/prisma-chat-mapper';
+import { PrismaChatUserMapper } from '@/infra/database/prisma/mappers/prisma-chat-user-mapper';
 import { PrismaService } from '@/infra/database/prisma/prisma.service';
 import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
@@ -26,6 +27,12 @@ export class ChatFactory {
     await this.prisma.chat.create({
       data: PrismaChatMapper.toPrisma(chat)
     });
+    for (const user of chat.users.currentItems) {
+      const userPrisma = PrismaChatUserMapper.toPrisma(user);
+      await this.prisma.usersOnChats.create({
+        data: userPrisma
+      });
+    }
     return chat;
   }
 }

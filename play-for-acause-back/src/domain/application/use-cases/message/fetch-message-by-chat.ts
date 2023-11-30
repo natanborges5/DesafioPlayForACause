@@ -1,21 +1,23 @@
 import { Either, right } from '@/core/entities/either';
 import { ChatMessage } from '@/domain/enterprise/entities/chat-message';
 import { ChatMessagesRepository } from '../../repositories/chat-messages-repository';
+import { Injectable } from '@nestjs/common';
 
-interface FetchChatMessagesUseCaseRequest {
+interface FetchMessageByChatUseCaseRequest {
   chatId: string;
   page: number;
 }
-type FetchChatMessagesUseCaseResponse = Either<
+type FetchMessageByChatUseCaseResponse = Either<
   null,
   { chatMessages: ChatMessage[] }
 >;
-export class FetchChatMessagesUseCase {
+@Injectable()
+export class FetchMessageByChatUseCase {
   constructor(private chatMessagesRepository: ChatMessagesRepository) {}
   async execute({
     chatId,
     page
-  }: FetchChatMessagesUseCaseRequest): Promise<FetchChatMessagesUseCaseResponse> {
+  }: FetchMessageByChatUseCaseRequest): Promise<FetchMessageByChatUseCaseResponse> {
     const chatMessages = await this.chatMessagesRepository.findManyByChatId(
       chatId,
       { page }

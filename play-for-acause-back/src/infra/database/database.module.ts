@@ -6,6 +6,8 @@ import { ChatsRepository } from '@/domain/application/repositories/chat-reposito
 import { PrismaChatsRepository } from './prisma/repositories/prisma-chat-repository';
 import { ChatUsersRepository } from '@/domain/application/repositories/chat-users-repository';
 import { PrismaChatsUserRepository } from './prisma/repositories/prisma-chat-user-repository';
+import { ChatMessagesRepository } from '@/domain/application/repositories/chat-messages-repository';
+import { PrismaChatMessageRepository } from './prisma/repositories/prisma-chat-message-repository';
 
 @Module({
   providers: [
@@ -21,13 +23,18 @@ import { PrismaChatsUserRepository } from './prisma/repositories/prisma-chat-use
     {
       provide: ChatUsersRepository,
       useClass: PrismaChatsUserRepository
+    },
+    {
+      provide: ChatMessagesRepository,
+      useClass: PrismaChatMessageRepository
     }
   ],
   exports: [
     PrismaService,
     UsersRepository,
     ChatsRepository,
-    ChatUsersRepository
+    ChatUsersRepository,
+    ChatMessagesRepository
   ]
 })
 export class DatabaseModule {}
