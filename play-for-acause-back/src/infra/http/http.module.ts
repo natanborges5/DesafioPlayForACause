@@ -11,7 +11,6 @@ import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fet
 import { MessageController } from './controllers/message.controller';
 import { MessageOnChatUseCase } from '@/domain/application/use-cases/message/message-on-chat';
 import { FetchMessageByChatUseCase } from '@/domain/application/use-cases/message/fetch-message-by-chat';
-
 @Module({
   imports: [DatabaseModule, CryptographyModule],
   controllers: [

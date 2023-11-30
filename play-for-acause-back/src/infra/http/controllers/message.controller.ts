@@ -5,13 +5,16 @@ import {
   Get,
   HttpCode,
   Post,
-  Query
+  Query,
+  Sse
 } from '@nestjs/common';
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe';
 import { z } from 'zod';
 import { MessagePresenter } from '../presenters/message-presenter';
 import { MessageOnChatUseCase } from '@/domain/application/use-cases/message/message-on-chat';
 import { FetchMessageByChatUseCase } from '@/domain/application/use-cases/message/fetch-message-by-chat';
+import { Public } from '@/infra/auth/public';
+import { Observable, interval, map, switchMap } from 'rxjs';
 
 const messageSchema = z.object({
   authorId: z.string().uuid(),
@@ -38,6 +41,7 @@ export class MessageController {
     private fetchMessagesByChat: FetchMessageByChatUseCase
   ) {}
   @Get()
+  @Public()
   async handleFetchRecentMessages(
     @Query('page', queryValidationPipe) page: PageQueryParamSchema,
     @Query('chatId', userIdQueryValidationPipe) chatId: UserIdQueryParamSchema
@@ -65,5 +69,25 @@ export class MessageController {
     if (result.isLeft()) {
       throw new BadRequestException(result.value.message);
     }
+  }
+  @Public()
+  @Sse('sse/:chatId')
+  sse(@Query('chatId') chatId: string): Observable<MessageEvent> {
+    return interval(1000).pipe(
+      switchMap(async () => {
+        const result = await this.fetchMessagesByChat.execute({
+          chatId,
+          page: 1
+        });
+
+        if (result.isRight()) {
+          const messages = result.value.chatMessages;
+          return { data: messages.map(MessagePresenter.toHTTP) };
+        }
+
+        return null;
+      }),
+      map((data) => ({ data }) as MessageEvent)
+    );
   }
 }
