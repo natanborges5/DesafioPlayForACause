@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
   Post,
   Query,
   Sse
@@ -14,7 +15,7 @@ import { MessagePresenter } from '../presenters/message-presenter';
 import { MessageOnChatUseCase } from '@/domain/application/use-cases/message/message-on-chat';
 import { FetchMessageByChatUseCase } from '@/domain/application/use-cases/message/fetch-message-by-chat';
 import { Public } from '@/infra/auth/public';
-import { Observable, interval, map, switchMap } from 'rxjs';
+import { Observable, from, interval, map, switchMap } from 'rxjs';
 
 const messageSchema = z.object({
   authorId: z.string().uuid(),
@@ -72,19 +73,17 @@ export class MessageController {
   }
   @Public()
   @Sse('sse/:chatId')
-  sse(@Query('chatId') chatId: string): Observable<MessageEvent> {
+  sse(@Param('chatId') chatId: string): Observable<MessageEvent> {
+    console.log(chatId);
     return interval(1000).pipe(
-      switchMap(async () => {
-        const result = await this.fetchMessagesByChat.execute({
-          chatId,
-          page: 1
-        });
-
+      switchMap(() =>
+        from(this.fetchMessagesByChat.execute({ chatId, page: 1 }))
+      ),
+      map((result) => {
         if (result.isRight()) {
           const messages = result.value.chatMessages;
           return { data: messages.map(MessagePresenter.toHTTP) };
         }
-
         return null;
       }),
       map((data) => ({ data }) as MessageEvent)

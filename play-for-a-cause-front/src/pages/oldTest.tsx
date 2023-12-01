@@ -26,12 +26,10 @@ export default function ChatTest() {
                 console.error('Erro ao parsear dados SSE:', error);
             }
         }
-
         sse.onmessage = getRealtimeData;
         sse.onerror = () => {
             sse.close();
         };
-
         return () => {
             sse.close();
         };

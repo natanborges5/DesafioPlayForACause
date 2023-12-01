@@ -1,4 +1,5 @@
 import { ChatDto } from '@/Types/ChatDto';
+import { LongChat } from '@/components/Chat/LongChat';
 import { ShortChatCard } from '@/components/Chat/SmallChat';
 import { AuthContext } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
@@ -6,27 +7,14 @@ import { AppError } from '@/utils/AppError';
 import { Box, Flex, Grid, GridItem, useDisclosure } from '@chakra-ui/react';
 import React, { memo, useContext, useEffect, useState } from 'react';
 
-export interface ChatMessage {
-    chatId: string;
-    content: string;
-    authorId: string;
-    createdAt: Date;
-    updatedAt?: Date | null;
-}
 const MemoizedShortChatCard = memo(ShortChatCard)
+const MemoizedLongChatCard = memo(LongChat)
 export default function Chat() {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [inputMessage, setInputMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [localChats, setLocalChats] = useState<ChatDto[]>()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { user } = useContext(AuthContext)
-    const [selectedChat, setSelectedChat] = useState<ChatDto>({
-        users: [],
-        name: '',
-        createdAt: '',
-        updatedAt: '',
-    })
+    const [selectedChat, setSelectedChat] = useState<ChatDto>()
 
     async function fetchUserChats() {
         try {
@@ -95,7 +83,32 @@ export default function Chat() {
                         ))}
                     </Box>
                 </GridItem>
-                <GridItem colSpan={4} rowSpan={2} bg='tomato' />
+                <GridItem
+                    colSpan={4}
+                    rowSpan={2}
+                    bg="gray.800"
+                    p={6}
+                    borderRadius={'md'}
+                    overflowY="auto"
+                    css={{
+                        '&::-webkit-scrollbar': {
+                            width: '0px', // Largura da barra de rolagem
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            background: 'teal.500', // Cor da alça da barra de rolagem
+                            borderRadius: '6px', // Borda arredondada
+                        },
+                        '&::-webkit-scrollbar-thumb:hover': {
+                            background: 'teal.700', // Cor da alça ao passar o mouse
+                        },
+                    }}
+                >
+                    {selectedChat && (
+                        <MemoizedLongChatCard
+                            chat={selectedChat}
+                        />
+                    )}
+                </GridItem>
             </Grid>
         </Box>
     );
