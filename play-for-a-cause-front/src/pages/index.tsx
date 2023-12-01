@@ -1,65 +1,62 @@
-import React, { useEffect, useState } from 'react';
+import { Input } from "@/components/Form/Input";
+import { AuthContext } from "@/contexts/AuthContext";
+import { Button, Flex } from "@chakra-ui/react";
+import { useContext } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 
-export interface ChatMessage {
-    chatId: string;
-    content: string;
-    authorId: string;
-    createdAt: Date;
-    updatedAt?: Date | null;
-}
-const App: React.FC = () => {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [inputMessage, setInputMessage] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        setIsLoading(true);
-        const sse = new EventSource('http://localhost:3333/messages/sse/bd56e56d-38c6-4391-938f-a86f4f4afe8f');
-        function getRealtimeData(event: MessageEvent) {
-            try {
-                const data = JSON.parse(event.data);
-                // Certifique-se de que data.data seja um array antes de chamar map
-                if (Array.isArray(data.data)) {
-                    setMessages(data.data);
-                    setIsLoading(false);
-                }
-            } catch (error) {
-                console.error('Erro ao parsear dados SSE:', error);
-            }
-        }
-
-        sse.onmessage = getRealtimeData;
-        sse.onerror = () => {
-            // Tratar erro aqui
-            sse.close();
-        };
-
-        return () => {
-            sse.close();
-        };
-    }, []);
-    function handleSendMessage() {
-    }
-    return (
-        <div>
-            <h1>WebSocket Example</h1>
-            <div>
-                {!isLoading && <ul>
-                    {messages.map((message, index) => (
-                        <li key={index}>{message.content}</li>
-                    ))}
-                </ul>}
-            </div>
-            <div>
-                <input
-                    type="text"
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                />
-                <button onClick={handleSendMessage}>Enviar</button>
-            </div>
-        </div>
-    );
+type FormState = {
+    email: string;
+    password: string;
 };
 
-export default App;
+export default function Home() {
+
+    const { register, handleSubmit, formState } = useForm<FormState>();
+    const { signIn } = useContext(AuthContext);
+
+    const handleLogin: SubmitHandler<FormState> = async (values) => {
+        await signIn(values);
+    }
+
+    return (
+        <Flex
+            w="100vw"
+            h="100vh"
+            alignItems="Center"
+            justify="center"
+        >
+            <Flex
+                as="form"
+                width="100%"
+                maxWidth={360}
+                bg="gray.800"
+                p="8"
+                borderRadius={8}
+                flexDir="column"
+                onSubmit={handleSubmit(handleLogin)}
+            >
+                <Input
+                    label="E-mail"
+                    pk="email"
+                    type="email"
+                    {...register('email')}
+                />
+
+                <Input
+                    label="Password"
+                    pk="password"
+                    type="password"
+                    {...register('password')}
+                />
+
+                <Button
+                    type="submit"
+                    mt="6"
+                    colorScheme="yellow"
+                    size="lg">
+                    Entrar
+                </Button>
+            </Flex>
+        </Flex>
+    )
+}
