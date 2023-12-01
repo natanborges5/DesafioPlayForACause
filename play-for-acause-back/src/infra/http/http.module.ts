@@ -7,10 +7,11 @@ import { RegisterUserUseCase } from '@/domain/application/use-cases/user/registe
 import { AccountController } from './controllers/account.controller';
 import { ChatController } from './controllers/chat.controller';
 import { CreateChatUseCase } from '@/domain/application/use-cases/chat/create-chat';
-import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-recent-chats';
 import { MessageController } from './controllers/message.controller';
 import { MessageOnChatUseCase } from '@/domain/application/use-cases/message/message-on-chat';
 import { FetchMessageByChatUseCase } from '@/domain/application/use-cases/message/fetch-message-by-chat';
+import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-recent-chats';
+import { FetchUserRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-user-recent-chats';
 @Module({
   imports: [DatabaseModule, CryptographyModule],
   controllers: [
@@ -25,7 +26,8 @@ import { FetchMessageByChatUseCase } from '@/domain/application/use-cases/messag
     CreateChatUseCase,
     FetchRecentChatsUseCase,
     MessageOnChatUseCase,
-    FetchMessageByChatUseCase
+    FetchMessageByChatUseCase,
+    FetchUserRecentChatsUseCase
   ]
 })
 export class HttpModule {}

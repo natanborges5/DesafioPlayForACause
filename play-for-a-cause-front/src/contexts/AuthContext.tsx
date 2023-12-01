@@ -7,6 +7,7 @@ import { Flex, Spinner } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/react'
 import { AppError } from '@/utils/AppError'
 type User = {
+    id: string
     email: string
 }
 type TokenPayload = {
@@ -50,7 +51,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
             const { 'PlayChat.token': token } = parseCookies()
             if (token) {
-                const { exp, email } = jwt.decode(token) as TokenPayload
+                const { exp, email, sub } = jwt.decode(token) as TokenPayload
                 if (exp < Date.now() / 1000) {
                     await SignOut()
                     toast({
@@ -62,6 +63,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 } else {
                     setUser({
                         email,
+                        id: sub
                     })
                 }
             } else {
@@ -84,12 +86,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 password,
             })
             const { access_token } = response.data
+            const { sub } = jwt.decode(access_token) as TokenPayload
             setCookie(undefined, 'PlayChat.token', access_token, {
                 maxAge: 60 * 60 * 24 * 50,
                 path: '/',
             })
             setUser({
                 email,
+                id: sub
             })
 
             api.defaults.headers['Authorization'] = 'Bearer ' + access_token

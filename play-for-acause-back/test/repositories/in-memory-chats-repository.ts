@@ -4,6 +4,18 @@ import { Chat } from '@/domain/enterprise/entities/chat';
 
 export class InMemoryChatsRepository implements ChatsRepository {
   constructor() {}
+  async findManyRecentByUserId(
+    { page }: PaginationParams,
+    userId: string
+  ): Promise<Chat[]> {
+    const chats = this.items
+      .filter((chat) =>
+        chat.users.currentItems.some((user) => user.id.toString() === userId)
+      )
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice((page - 1) * 20, page * 20);
+    return chats;
+  }
   async findManyRecent({ page }: PaginationParams) {
     const chats = this.items
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())

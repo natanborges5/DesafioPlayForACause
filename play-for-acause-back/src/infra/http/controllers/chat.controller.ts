@@ -10,8 +10,9 @@ import {
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe';
 import { z } from 'zod';
 import { CreateChatUseCase } from '@/domain/application/use-cases/chat/create-chat';
-import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-recent-chats';
 import { ChatPresenter } from '../presenters/chat-presenter';
+import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-recent-chats';
+import { FetchUserRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-user-recent-chats';
 
 const chatSchema = z.object({
   name: z.string(),
@@ -23,6 +24,11 @@ const pageQueryParamSchema = z
   .default('1')
   .transform(Number)
   .pipe(z.number().min(1));
+
+const userIdQueryParamSchema = z.string();
+const userQueryValidationPipe = new ZodValidationPipe(userIdQueryParamSchema);
+type UserQueryParamSchema = z.infer<typeof userIdQueryParamSchema>;
+
 const queryValidationPipe = new ZodValidationPipe(pageQueryParamSchema);
 type PageQueryParamSchema = z.infer<typeof pageQueryParamSchema>;
 type ChatBodySchema = z.infer<typeof chatSchema>;
@@ -30,13 +36,28 @@ type ChatBodySchema = z.infer<typeof chatSchema>;
 export class ChatController {
   constructor(
     private createChat: CreateChatUseCase,
-    private fetchRecentChats: FetchRecentChatsUseCase
+    private fetchRecentChats: FetchRecentChatsUseCase,
+    private fetchUserRecentChats: FetchUserRecentChatsUseCase
   ) {}
   @Get()
   async handleFetchRecentChats(
     @Query('page', queryValidationPipe) page: PageQueryParamSchema
   ) {
     const result = await this.fetchRecentChats.execute({ page });
+    if (result.isLeft()) {
+      throw new BadRequestException();
+    }
+    const chats = result.value.chats;
+    return {
+      chats: chats.map(ChatPresenter.toHTTP)
+    };
+  }
+  @Get('user/')
+  async handleFetchUserRecentChats(
+    @Query('page', queryValidationPipe) page: PageQueryParamSchema,
+    @Query('userId', userQueryValidationPipe) userId: UserQueryParamSchema
+  ) {
+    const result = await this.fetchUserRecentChats.execute({ page, userId });
     if (result.isLeft()) {
       throw new BadRequestException();
     }

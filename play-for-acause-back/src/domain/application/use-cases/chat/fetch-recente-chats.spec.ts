@@ -1,7 +1,7 @@
 import { InMemoryChatsRepository } from 'test/repositories/in-memory-chats-repository';
 import { makeChat } from 'test/factories/make-chat';
-import { FetchRecentChatsUseCase } from './fetch-recent-chats';
 import { InMemoryChatUsersRepository } from 'test/repositories/in-memory-chat-users-repository';
+import { FetchRecentChatsUseCase } from './fetch-recent-chats';
 
 let inMemoryChatsRepository: InMemoryChatsRepository;
 let inMemoryChatUsersRepository: InMemoryChatUsersRepository;

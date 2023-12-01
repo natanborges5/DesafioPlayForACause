@@ -38,7 +38,8 @@ export class AuthenticateUserUseCase {
       return left(new WrongCredentialsError());
     }
     const accessToken = await this.encrypter.encrypt({
-      sub: user.id.toString()
+      sub: user.id.toString(),
+      email: user.email
     });
     return right({
       accessToken

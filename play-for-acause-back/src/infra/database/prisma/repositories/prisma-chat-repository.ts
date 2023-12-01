@@ -9,6 +9,27 @@ import { PrismaChatUserMapper } from '../mappers/prisma-chat-user-mapper';
 @Injectable()
 export class PrismaChatsRepository implements ChatsRepository {
   constructor(private prisma: PrismaService) {}
+  async findManyRecentByUserId(
+    { page }: PaginationParams,
+    userId: string
+  ): Promise<Chat[]> {
+    const chats = await this.prisma.chat.findMany({
+      where: {
+        users: {
+          some: {
+            userId: userId
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 20,
+      skip: (page - 1) * 20
+    });
+
+    return chats.map(PrismaChatMapper.toDomain);
+  }
   async findById(id: string): Promise<Chat | null> {
     const chat = await this.prisma.chat.findUnique({
       where: {

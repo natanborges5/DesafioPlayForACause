@@ -1,8 +1,8 @@
-import { InMemoryChatsRepository } from 'test/repositories/in-memory-chats-repository';
 import { CreateChatUseCase } from './create-chat';
 import { makeUser } from 'test/factories/make-user';
 import { InMemoryUsersRepository } from 'test/repositories/in-memory-users-repository';
 import { UserNotFoundError } from '../errors/usert-not-found-error';
+import { InMemoryChatsRepository } from 'test/repositories/in-memory-chats-repository';
 
 let inMemoryChatsRepository: InMemoryChatsRepository;
 let inMemoryUserRepository: InMemoryUsersRepository;
