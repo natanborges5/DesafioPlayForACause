@@ -1,12 +1,18 @@
 import { ChatDto } from '@/Types/ChatDto';
 import { LongChat } from '@/components/Chat/LongChat';
 import { ShortChatCard } from '@/components/Chat/SmallChat';
+import { Header } from '@/components/Header';
 import { AuthContext } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
 import { AppError } from '@/utils/AppError';
-import { Box, Flex, Grid, GridItem, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, useDisclosure, useToast } from '@chakra-ui/react';
 import React, { memo, useContext, useEffect, useState } from 'react';
-
+import { MdSend } from 'react-icons/md';
+type NewMessageProps = {
+    authorId: string
+    chatId: string
+    content: string
+}
 const MemoizedShortChatCard = memo(ShortChatCard)
 const MemoizedLongChatCard = memo(LongChat)
 export default function Chat() {
@@ -15,7 +21,9 @@ export default function Chat() {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { user } = useContext(AuthContext)
     const [selectedChat, setSelectedChat] = useState<ChatDto>()
+    const [messageContent, setMessageContent] = React.useState('')
 
+    const toast = useToast()
     async function fetchUserChats() {
         try {
             setIsLoading(true);
@@ -26,6 +34,7 @@ export default function Chat() {
                     userId: user?.id
                 }
             })
+            console.log(response.data.chats)
             setLocalChats(response.data.chats)
         } catch (error) {
             const isAppError = error instanceof AppError
@@ -39,14 +48,39 @@ export default function Chat() {
         setSelectedChat(chat)
         onOpen()
     }
+    async function sendMessage() {
+        try {
+            if (user && selectedChat) {
+                const newMessage: NewMessageProps = {
+                    authorId: user?.id,
+                    chatId: selectedChat.id,
+                    content: messageContent
+                }
+                await api.post("/messages", newMessage)
+            }
+            setMessageContent("")
+        } catch (error) {
+            const isAppError = error instanceof AppError
+            const title = isAppError
+                ? error.message
+                : 'Não foi possível enviar a mensagem. Tente novamente mais tarde.'
+            toast({
+                title,
+                status: 'error',
+                duration: 6000,
+                isClosable: true,
+            })
+        }
+    }
     useEffect(() => {
         fetchUserChats()
     }, []);
     return (
         <Box>
+            <Header />
             <Grid
                 h="100vh"
-                templateRows='repeat(2, 1fr)'
+                templateRows='repeat(10, 1fr)'
                 templateColumns='repeat(5, 1fr)'
                 gap={4}
             >
@@ -63,7 +97,7 @@ export default function Chat() {
                             background: 'teal.700', // Cor da alça ao passar o mouse
                         },
                     }}
-                    rowSpan={{ base: 2, md: 2 }}
+                    rowSpan={{ base: 10, md: 10 }}
                     colSpan={{ base: 1, md: 1 }}
                     w={'auto'}
                     overflowY="auto"
@@ -71,6 +105,7 @@ export default function Chat() {
                     borderRadius={'md'}
                     p={4}
                 >
+                    <Heading textAlign={"center"}>Chats</Heading>
                     <Box mt={6}>
                         {localChats?.map((chat, index) => (
                             <MemoizedShortChatCard
@@ -85,7 +120,7 @@ export default function Chat() {
                 </GridItem>
                 <GridItem
                     colSpan={4}
-                    rowSpan={2}
+                    rowSpan={8}
                     bg="gray.800"
                     p={6}
                     borderRadius={'md'}
@@ -107,6 +142,30 @@ export default function Chat() {
                         <MemoizedLongChatCard
                             chat={selectedChat}
                         />
+                    )}
+                </GridItem>
+                <GridItem
+                    colSpan={4}
+                    rowSpan={2}
+                    px={2}
+                >
+
+                    {selectedChat && (
+                        <InputGroup size='lg'>
+                            <Input
+                                pr='4.5rem'
+                                placeholder='Digite a sua mensagem'
+                                borderColor={"yellow.400"}
+                                focusBorderColor='yellow.400'
+                                value={messageContent}
+                                onChange={(event) => setMessageContent(event.target.value)}
+                            />
+                            <InputRightElement width='4.5rem'>
+                                <Button backgroundColor={"yellow.400"} h='1.75rem' size='sm' onClick={sendMessage}>
+                                    <MdSend />
+                                </Button>
+                            </InputRightElement>
+                        </InputGroup>
                     )}
                 </GridItem>
             </Grid>
