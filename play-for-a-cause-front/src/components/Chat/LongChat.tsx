@@ -10,6 +10,7 @@ import { ChatsWithLastMessageDetailed } from '@/pages/chat';
 import { UserDto } from '@/Types/UserDto';
 import { FaUsers } from "react-icons/fa";
 import { UsersOnChatsModal } from '../Users';
+import { api } from '@/services/api';
 export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     const [messages, setMessages] = useState<ChatMessageDto[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +20,7 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     const toast = useToast()
     useEffect(() => {
         setIsLoading(true);
+        getUsersDetails()
         const sse = new EventSource(`http://localhost:3333/messages/sse/${chat.id}`);
         function getRealtimeData(event: MessageEvent) {
             try {
@@ -49,8 +51,30 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
             sse.close();
         };
     }, [chat]);
-    function getUsersDetails() {
-
+    async function getUsersDetails() {
+        const newUsersOnChat: UserDto[] = []
+        console.log("teste")
+        try {
+            setIsLoading(true);
+            for (const user of chat.users) {
+                const response = await api.get(`/accounts/id/${user}`)
+                newUsersOnChat.push(response.data.user)
+            }
+        } catch (error) {
+            const isAppError = error instanceof AppError
+            const title = isAppError
+                ? error.message
+                : 'Não foi possível carregar os usuarios. Tente novamente mais tarde.'
+            toast({
+                title,
+                status: 'error',
+                duration: 6000,
+                isClosable: true,
+            })
+        } finally {
+            setUsersOnChat(newUsersOnChat)
+            setIsLoading(true);
+        }
     }
     return (
         <Box>
@@ -78,16 +102,26 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
                         </IconButton>
                     </Flex>
 
-                    {messages.map((message) => (
-                        <MessageBox key={message.id} author={message.authorId} content={message.content} date={message.createdAt} variant={user?.id === message.authorId} />
+                    {messages.map((message) => {
+                        const authorUser = usersOnChat.find((user) => user.id === message.authorId);
+                        const authorName = authorUser ? authorUser.name : 'Unknown User';
 
-                    ))}
+                        return (
+                            <MessageBox
+                                key={message.id}
+                                author={authorName}
+                                content={message.content}
+                                date={message.createdAt}
+                                variant={user?.id === message.authorId}
+                            />
+                        );
+                    })}
                 </Box>
             }
             <UsersOnChatsModal
                 isOpen={isOpen}
                 onClose={onClose}
-                users={chat.users}
+                users={usersOnChat}
             />
         </Box>
 

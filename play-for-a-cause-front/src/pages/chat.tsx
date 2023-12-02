@@ -20,7 +20,7 @@ type NewMessageProps = {
 export type ChatsWithLastMessageDetailed = {
     id: string
     name: string;
-    users: UserDto[];
+    users: string[];
     lastMessage?: ChatMessageDto
     createdAt: string;
     updatedAt: string;
