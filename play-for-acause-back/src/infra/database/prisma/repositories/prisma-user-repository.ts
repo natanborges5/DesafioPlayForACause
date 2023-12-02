@@ -6,6 +6,17 @@ import { PrismaUserMapper } from '../mappers/prisma-user-mapper';
 @Injectable()
 export class PrismaUsersRepository implements UsersRepository {
   constructor(private prisma: PrismaService) {}
+  async findManyByEmail(email: string): Promise<User[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        email: {
+          contains: email,
+          mode: 'insensitive'
+        }
+      }
+    });
+    return users.map(PrismaUserMapper.toDomain);
+  }
   async findById(id: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({
       where: {
