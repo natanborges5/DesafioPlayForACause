@@ -14,6 +14,7 @@ import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fet
 import { FetchUserRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-user-recent-chats';
 import { GetUserByEmailUseCase } from '@/domain/application/use-cases/user/get-users-by-email';
 import { GetMessageByIdUseCase } from '@/domain/application/use-cases/message/get-message-by-id';
+import { GetUserByIdUseCase } from '@/domain/application/use-cases/user/get-user-by-id';
 @Module({
   imports: [DatabaseModule, CryptographyModule],
   controllers: [
@@ -25,6 +26,7 @@ import { GetMessageByIdUseCase } from '@/domain/application/use-cases/message/ge
   providers: [
     AuthenticateUserUseCase,
     RegisterUserUseCase,
+    GetUserByIdUseCase,
     GetUserByEmailUseCase,
     CreateChatUseCase,
     FetchRecentChatsUseCase,

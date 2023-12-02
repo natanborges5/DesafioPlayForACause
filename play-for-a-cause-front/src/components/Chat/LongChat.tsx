@@ -1,16 +1,20 @@
 import { ChatDto } from '@/Types/ChatDto';
 import { ChatMessageDto } from '@/Types/ChatMessageDto'
-import { Box, Center, Spinner, Text, useToast } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, IconButton, Spacer, Spinner, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import { useEffect, useState, useContext } from 'react'
 import { MessageBox } from './Message';
 import { AuthContext } from '@/contexts/AuthContext';
 import React from 'react';
 import { AppError } from '@/utils/AppError';
 import { ChatsWithLastMessageDetailed } from '@/pages/chat';
-
+import { UserDto } from '@/Types/UserDto';
+import { FaUsers } from "react-icons/fa";
+import { UsersOnChatsModal } from '../Users';
 export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     const [messages, setMessages] = useState<ChatMessageDto[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [usersOnChat, setUsersOnChat] = useState<UserDto[]>([])
+    const { isOpen, onOpen, onClose } = useDisclosure()
     const { user } = useContext(AuthContext)
     const toast = useToast()
     useEffect(() => {
@@ -45,25 +49,46 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
             sse.close();
         };
     }, [chat]);
+    function getUsersDetails() {
+
+    }
     return (
         <Box>
             {isLoading ? <Center h={"70vh"}><Spinner size={"lg"} /></Center> :
                 <Box>
-                    <Text
-                        fontSize={{ base: '2xl', md: '2xl' }}
-                        color={'yellow.400'}
-                        fontWeight={'bold'}
-                        mb={4}
-                        textAlign={"center"}
-                    >
-                        {chat.name.toUpperCase()}
-                    </Text>
+                    <Flex alignItems={"center"} align={"center"} justify={"center"}>
+                        <Text
+                            fontSize={{ base: '2xl', md: '2xl' }}
+                            color={'yellow.400'}
+                            fontWeight={'bold'}
+                            mb={4}
+                        >
+                            {chat.name.toUpperCase()}
+                        </Text>
+                        <Spacer />
+                        <IconButton
+                            color="gray.100"
+                            fontSize="32"
+                            variant="unstyled"
+                            onClick={onOpen}
+                            _hover={{
+                                color: 'yellow.500',
+                            }} aria-label="Users info" icon={<FaUsers />} >
+
+                        </IconButton>
+                    </Flex>
+
                     {messages.map((message) => (
                         <MessageBox key={message.id} author={message.authorId} content={message.content} date={message.createdAt} variant={user?.id === message.authorId} />
 
                     ))}
                 </Box>
             }
+            <UsersOnChatsModal
+                isOpen={isOpen}
+                onClose={onClose}
+                users={chat.users}
+            />
         </Box>
 
     )
