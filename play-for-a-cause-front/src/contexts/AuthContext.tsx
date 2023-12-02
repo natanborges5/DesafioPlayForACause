@@ -50,9 +50,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const verifyUser = async () => {
         try {
             const { 'PlayChat.token': token } = parseCookies()
+            console.log(token)
             if (token) {
+                console.log("entrou no verify")
                 const { exp, email, sub } = jwt.decode(token) as TokenPayload
+                console.log("exp", exp)
+                console.log("email", email)
                 if (exp < Date.now() / 1000) {
+                    console.log("entrou no exp:", exp)
                     await SignOut()
                     toast({
                         title: 'Login Expirado.',
@@ -61,10 +66,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
                         isClosable: true,
                     })
                 } else {
+                    console.log("caiu no else")
                     setUser({
                         email,
                         id: sub
                     })
+                    api.defaults.headers['Authorization'] = 'Bearer ' + token
                 }
             } else {
                 await SignOut()
