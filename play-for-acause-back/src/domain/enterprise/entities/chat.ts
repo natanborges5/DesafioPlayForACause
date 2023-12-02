@@ -5,6 +5,7 @@ import { UniqueEntityID } from '@/core/entities/unique-entity-id';
 export interface ChatProps {
   name: string;
   users: ChatUserList;
+  lastMessageId?: UniqueEntityID | null;
   createdAt: Date;
   updatedAt?: Date | null;
 }
@@ -14,6 +15,9 @@ export class Chat extends AggregateRoot<ChatProps> {
   }
   get users() {
     return this.props.users;
+  }
+  get lastMessageId() {
+    return this.props.lastMessageId;
   }
   get createdAt() {
     return this.props.createdAt;
@@ -27,6 +31,11 @@ export class Chat extends AggregateRoot<ChatProps> {
   }
   set users(users: ChatUserList) {
     this.props.users = users;
+    this.touch();
+  }
+  set lastMessageId(lastMessageId: UniqueEntityID | undefined | null) {
+    if (lastMessageId !== this.props.lastMessageId)
+      this.props.lastMessageId = lastMessageId;
     this.touch();
   }
   touch() {

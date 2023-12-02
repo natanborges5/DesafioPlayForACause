@@ -7,6 +7,9 @@ export class PrismaChatMapper {
     return Chat.create(
       {
         name: raw.name,
+        lastMessageId: raw.lastMessageId
+          ? new UniqueEntityID(raw.lastMessageId)
+          : null,
         createdAt: raw.createdAt,
         updatedAt: raw.updatedAt
       },
@@ -16,6 +19,7 @@ export class PrismaChatMapper {
   static toPrisma(chat: Chat): Prisma.ChatUncheckedCreateInput {
     return {
       id: chat.id.toString(),
+      lastMessageId: chat.lastMessageId?.toString(),
       name: chat.name,
       createdAt: chat.createdAt,
       updatedAt: chat.updatedAt

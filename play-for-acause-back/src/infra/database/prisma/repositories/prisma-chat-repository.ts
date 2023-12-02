@@ -52,6 +52,7 @@ export class PrismaChatsRepository implements ChatsRepository {
     return chats.map(PrismaChatMapper.toDomain);
   }
   async create(chat: Chat): Promise<void> {
+    console.log(chat);
     const data = PrismaChatMapper.toPrisma(chat);
     await this.prisma.chat.create({
       data

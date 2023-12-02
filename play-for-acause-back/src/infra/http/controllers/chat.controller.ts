@@ -52,7 +52,7 @@ export class ChatController {
       chats: chats.map(ChatPresenter.toHTTP)
     };
   }
-  @Get('user/')
+  @Get('/user')
   async handleFetchUserRecentChats(
     @Query('page', queryValidationPipe) page: PageQueryParamSchema,
     @Query('userId', userQueryValidationPipe) userId: UserQueryParamSchema

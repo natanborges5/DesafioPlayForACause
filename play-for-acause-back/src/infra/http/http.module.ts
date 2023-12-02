@@ -13,6 +13,7 @@ import { FetchMessageByChatUseCase } from '@/domain/application/use-cases/messag
 import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-recent-chats';
 import { FetchUserRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-user-recent-chats';
 import { GetUserByEmailUseCase } from '@/domain/application/use-cases/user/get-users-by-email';
+import { GetMessageByIdUseCase } from '@/domain/application/use-cases/message/get-message-by-id';
 @Module({
   imports: [DatabaseModule, CryptographyModule],
   controllers: [
@@ -29,7 +30,8 @@ import { GetUserByEmailUseCase } from '@/domain/application/use-cases/user/get-u
     FetchRecentChatsUseCase,
     MessageOnChatUseCase,
     FetchMessageByChatUseCase,
-    FetchUserRecentChatsUseCase
+    FetchUserRecentChatsUseCase,
+    GetMessageByIdUseCase
   ]
 })
 export class HttpModule {}

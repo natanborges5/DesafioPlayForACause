@@ -38,6 +38,9 @@ export class MessageOnChatUseCase {
       content
     });
     await this.chatMessagesRepository.create(chatMessage);
+    chat.lastMessageId = chatMessage.id;
+    await this.chatRepository.save(chat);
+    console.log(chat);
     return right({
       chatMessage
     });

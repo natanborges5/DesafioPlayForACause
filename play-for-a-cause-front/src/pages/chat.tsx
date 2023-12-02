@@ -1,4 +1,6 @@
 import { ChatDto } from '@/Types/ChatDto';
+import { ChatMessageDto } from '@/Types/ChatMessageDto';
+import { UserDto } from '@/Types/UserDto';
 import { LongChat } from '@/components/Chat/LongChat';
 import { ModalNewChat } from '@/components/Chat/NewChatModal';
 import { ShortChatCard } from '@/components/Chat/SmallChat';
@@ -15,18 +17,27 @@ type NewMessageProps = {
     chatId: string
     content: string
 }
+export type ChatsWithLastMessageDetailed = {
+    id: string
+    name: string;
+    users: UserDto[];
+    lastMessage?: ChatMessageDto
+    createdAt: string;
+    updatedAt: string;
+}
 const MemoizedShortChatCard = memo(ShortChatCard)
 const MemoizedLongChatCard = memo(LongChat)
 export default function Chat() {
     const [isLoading, setIsLoading] = useState(false);
-    const [localChats, setLocalChats] = useState<ChatDto[]>()
+    const [localChats, setLocalChats] = useState<ChatsWithLastMessageDetailed[]>()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { user } = useContext(AuthContext)
-    const [selectedChat, setSelectedChat] = useState<ChatDto>()
+    const [selectedChat, setSelectedChat] = useState<ChatsWithLastMessageDetailed>()
     const [messageContent, setMessageContent] = React.useState('')
 
     const toast = useToast()
     async function fetchUserChats() {
+        const chatDetailed: ChatsWithLastMessageDetailed[] = []
         try {
             setIsLoading(true);
             const response = await api.get("/chats/user", {
@@ -36,14 +47,27 @@ export default function Chat() {
                     userId: user?.id
                 }
             })
-            console.log(response.data.chats)
-            setLocalChats(response.data.chats)
+            const chats: ChatDto[] = response.data.chats
+            console.log(chats)
+            for (const chat of chats) {
+                const newChatDetaild: ChatsWithLastMessageDetailed = {
+                    ...chat,
+                    lastMessage: undefined
+                }
+                if (chat.lastMessage) {
+                    const response = await api.get(`/messages/${chat.lastMessage}`)
+                    newChatDetaild.lastMessage = response.data.message
+                }
+                chatDetailed.push(newChatDetaild)
+            }
         } catch (error) {
             const isAppError = error instanceof AppError
             const title = isAppError
                 ? error.message
                 : 'Não foi possível atualizar. Tente novamente mais tarde.'
             throw new AppError(title)
+        } finally {
+            setLocalChats(chatDetailed)
         }
     }
     async function sendMessage() {
@@ -114,9 +138,9 @@ export default function Chat() {
                         {localChats?.map((chat, index) => (
                             <MemoizedShortChatCard
                                 key={index}
-                                author={chat.name}
+                                author={chat.lastMessage ? new Date(chat.lastMessage.createdAt).toLocaleString() : ""}
                                 name={chat.name}
-                                message={chat.name}
+                                message={chat.lastMessage ? chat.lastMessage.content : "Mande a primeira mensagem!"}
                                 onClick={() => { setSelectedChat(chat) }}
                             />
                         ))}

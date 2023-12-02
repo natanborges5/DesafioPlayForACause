@@ -6,8 +6,9 @@ import { MessageBox } from './Message';
 import { AuthContext } from '@/contexts/AuthContext';
 import React from 'react';
 import { AppError } from '@/utils/AppError';
+import { ChatsWithLastMessageDetailed } from '@/pages/chat';
 
-export function LongChat({ chat }: { chat: ChatDto }) {
+export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     const [messages, setMessages] = useState<ChatMessageDto[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useContext(AuthContext)

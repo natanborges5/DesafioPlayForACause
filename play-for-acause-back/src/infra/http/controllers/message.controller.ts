@@ -14,8 +14,9 @@ import { z } from 'zod';
 import { MessagePresenter } from '../presenters/message-presenter';
 import { MessageOnChatUseCase } from '@/domain/application/use-cases/message/message-on-chat';
 import { FetchMessageByChatUseCase } from '@/domain/application/use-cases/message/fetch-message-by-chat';
-import { Public } from '@/infra/auth/public';
 import { Observable, from, interval, map, switchMap } from 'rxjs';
+import { GetMessageByIdUseCase } from '@/domain/application/use-cases/message/get-message-by-id';
+import { Public } from '@/infra/auth/public';
 
 const messageSchema = z.object({
   authorId: z.string().uuid(),
@@ -39,10 +40,10 @@ type MessageBodySchema = z.infer<typeof messageSchema>;
 export class MessageController {
   constructor(
     private messageOnChat: MessageOnChatUseCase,
-    private fetchMessagesByChat: FetchMessageByChatUseCase
+    private fetchMessagesByChat: FetchMessageByChatUseCase,
+    private getMessageById: GetMessageByIdUseCase
   ) {}
   @Get()
-  @Public()
   async handleFetchRecentMessages(
     @Query('page', queryValidationPipe) page: PageQueryParamSchema,
     @Query('chatId', userIdQueryValidationPipe) chatId: UserIdQueryParamSchema
@@ -71,10 +72,23 @@ export class MessageController {
       throw new BadRequestException(result.value.message);
     }
   }
+  @Get('/:messageId')
+  async handleGetMessageByIdMessages(
+    @Param('messageId', userIdQueryValidationPipe)
+    messageId: UserIdQueryParamSchema
+  ) {
+    const result = await this.getMessageById.execute({ id: messageId });
+    if (result.isLeft()) {
+      throw new BadRequestException();
+    }
+    const message = result.value.message;
+    return {
+      message: MessagePresenter.toHTTP(message)
+    };
+  }
   @Public()
   @Sse('sse/:chatId')
   sse(@Param('chatId') chatId: string): Observable<MessageEvent> {
-    console.log(chatId);
     return interval(1000).pipe(
       switchMap(() =>
         from(this.fetchMessagesByChat.execute({ chatId, page: 1 }))
