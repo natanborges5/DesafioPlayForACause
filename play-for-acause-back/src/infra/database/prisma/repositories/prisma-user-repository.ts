@@ -13,7 +13,8 @@ export class PrismaUsersRepository implements UsersRepository {
           contains: email,
           mode: 'insensitive'
         }
-      }
+      },
+      take: 20
     });
     return users.map(PrismaUserMapper.toDomain);
   }

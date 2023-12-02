@@ -3,7 +3,9 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   HttpCode,
+  Param,
   Post,
   UsePipes
 } from '@nestjs/common';
@@ -12,6 +14,8 @@ import { z } from 'zod';
 import { Public } from '@/infra/auth/public';
 import { RegisterUserUseCase } from '@/domain/application/use-cases/user/register-user';
 import { UserAlreadyExistsError } from '@/domain/application/use-cases/errors/user-already-exists-error';
+import { GetUserByEmailUseCase } from '@/domain/application/use-cases/user/get-users-by-email';
+import { UserPresenter } from '../presenters/user-presenter';
 const accountSchema = z.object({
   name: z.string(),
   email: z.string().email(),
@@ -20,7 +24,10 @@ const accountSchema = z.object({
 type AccountBodySchema = z.infer<typeof accountSchema>;
 @Controller('/accounts')
 export class AccountController {
-  constructor(private registerUser: RegisterUserUseCase) {}
+  constructor(
+    private registerUser: RegisterUserUseCase,
+    private getUsersByEmail: GetUserByEmailUseCase
+  ) {}
 
   @Post()
   @Public()
@@ -43,5 +50,17 @@ export class AccountController {
           throw new BadRequestException(error.message);
       }
     }
+  }
+  @Get('/:email')
+  @HttpCode(200)
+  async handleFetchRecentChats(@Param('email') email: string) {
+    const result = await this.getUsersByEmail.execute({ email });
+    if (result.isLeft()) {
+      throw new BadRequestException();
+    }
+    const users = result.value.users;
+    return {
+      users: users.map(UserPresenter.toHTTP)
+    };
   }
 }

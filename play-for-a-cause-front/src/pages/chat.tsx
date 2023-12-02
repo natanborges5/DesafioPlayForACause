@@ -1,12 +1,14 @@
 import { ChatDto } from '@/Types/ChatDto';
 import { LongChat } from '@/components/Chat/LongChat';
+import { ModalNewChat } from '@/components/Chat/NewChatModal';
 import { ShortChatCard } from '@/components/Chat/SmallChat';
 import { Header } from '@/components/Header';
 import { AuthContext } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
 import { AppError } from '@/utils/AppError';
-import { Box, Button, Grid, GridItem, Heading, Input, InputGroup, InputRightElement, useDisclosure, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, GridItem, HStack, Heading, Input, InputGroup, InputRightElement, useDisclosure, useToast } from '@chakra-ui/react';
 import React, { memo, useContext, useEffect, useState } from 'react';
+import { IoMdAddCircleOutline } from "react-icons/io";
 import { MdSend } from 'react-icons/md';
 type NewMessageProps = {
     authorId: string
@@ -43,10 +45,6 @@ export default function Chat() {
                 : 'Não foi possível atualizar. Tente novamente mais tarde.'
             throw new AppError(title)
         }
-    }
-    function handleChatClick(chat: ChatDto, onOpen: () => void) {
-        setSelectedChat(chat)
-        onOpen()
     }
     async function sendMessage() {
         try {
@@ -105,7 +103,13 @@ export default function Chat() {
                     borderRadius={'md'}
                     p={4}
                 >
-                    <Heading textAlign={"center"}>Chats</Heading>
+                    <Flex justify={"space-evenly"}>
+                        <Heading textAlign={"center"}>Chats</Heading>
+                        <Button size={"md"} colorScheme="yellow" onClick={onOpen}>
+                            <IoMdAddCircleOutline size="2rem" />
+                        </Button>
+                    </Flex>
+
                     <Box mt={6}>
                         {localChats?.map((chat, index) => (
                             <MemoizedShortChatCard
@@ -113,7 +117,7 @@ export default function Chat() {
                                 author={chat.name}
                                 name={chat.name}
                                 message={chat.name}
-                                onClick={() => handleChatClick(chat, onOpen)}
+                                onClick={() => { setSelectedChat(chat) }}
                             />
                         ))}
                     </Box>
@@ -149,7 +153,6 @@ export default function Chat() {
                     rowSpan={2}
                     px={2}
                 >
-
                     {selectedChat && (
                         <InputGroup size='lg'>
                             <Input
@@ -169,6 +172,10 @@ export default function Chat() {
                     )}
                 </GridItem>
             </Grid>
+            <ModalNewChat
+                isOpen={isOpen}
+                onClose={onClose}
+            />
         </Box>
     );
 };
