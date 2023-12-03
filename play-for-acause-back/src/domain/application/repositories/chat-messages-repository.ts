@@ -9,4 +9,5 @@ export abstract class ChatMessagesRepository {
     params: PaginationParams
   ): Promise<ChatMessage[]>;
   abstract delete(chatMessage: ChatMessage): Promise<void>;
+  abstract getNumberOfPages(chatId: string): Promise<number>;
 }

@@ -9,7 +9,7 @@ interface FetchMessageByChatUseCaseRequest {
 }
 type FetchMessageByChatUseCaseResponse = Either<
   null,
-  { chatMessages: ChatMessage[] }
+  { chatMessages: ChatMessage[]; totalPages: number }
 >;
 @Injectable()
 export class FetchMessageByChatUseCase {
@@ -22,8 +22,11 @@ export class FetchMessageByChatUseCase {
       chatId,
       { page }
     );
+    const totalPages =
+      await this.chatMessagesRepository.getNumberOfPages(chatId);
     return right({
-      chatMessages
+      chatMessages,
+      totalPages
     });
   }
 }

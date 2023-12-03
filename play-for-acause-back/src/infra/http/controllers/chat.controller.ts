@@ -4,7 +4,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  Param,
   Post,
   Query,
   Sse
@@ -85,16 +84,24 @@ export class ChatController {
     }
   }
   @Public()
-  @Sse('sse/:userId')
-  sse(@Param('userId') userId: string): Observable<MessageEvent> {
+  @Sse('sse/')
+  sse(
+    @Query('userId') userId: string,
+    @Query('page') page: number
+  ): Observable<MessageEvent> {
     return interval(1000).pipe(
       switchMap(() =>
-        from(this.fetchUserRecentChats.execute({ userId, page: 1 }))
+        from(this.fetchUserRecentChats.execute({ userId, page }))
       ),
       map((result) => {
         if (result.isRight()) {
-          const messages = result.value.chats;
-          return { data: messages.map(ChatPresenter.toHTTP) };
+          const { chats, totalPages } = result.value;
+          return {
+            data: {
+              chats: chats.map(ChatPresenter.toHTTP),
+              totalPages
+            }
+          };
         }
         return null;
       }),

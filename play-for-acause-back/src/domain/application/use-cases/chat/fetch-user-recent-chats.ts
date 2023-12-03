@@ -9,7 +9,10 @@ interface FetchUserRecentChatsUseCaseRequest {
   page: number;
   userId: string;
 }
-type FetchUserRecentChatsUseCaseResponse = Either<null, { chats: Chat[] }>;
+type FetchUserRecentChatsUseCaseResponse = Either<
+  null,
+  { chats: Chat[]; totalPages: number }
+>;
 @Injectable()
 export class FetchUserRecentChatsUseCase {
   constructor(
@@ -33,8 +36,10 @@ export class FetchUserRecentChatsUseCase {
         return chat;
       })
     );
+    const totalPages = await this.chatRepository.getNumberOfPages(userId);
     return right({
-      chats: chatWithUsers
+      chats: chatWithUsers,
+      totalPages
     });
   }
 }

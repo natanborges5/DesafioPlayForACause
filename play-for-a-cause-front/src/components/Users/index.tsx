@@ -16,7 +16,7 @@ export function UsersOnChatsModal({ isOpen, onClose, users }: UsersOnChatModalPr
                 <ModalCloseButton />
                 <ModalBody>
                     {users.map((user, index) => (
-                        <Text>{index + 1} - {user.email}</Text>
+                        <Text key={index}>{index + 1} - {user.email}</Text>
                     ))}
                 </ModalBody>
             </ModalContent>

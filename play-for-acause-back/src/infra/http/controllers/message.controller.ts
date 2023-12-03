@@ -95,8 +95,13 @@ export class MessageController {
       ),
       map((result) => {
         if (result.isRight()) {
-          const messages = result.value.chatMessages;
-          return { data: messages.map(MessagePresenter.toHTTP) };
+          const { chatMessages, totalPages } = result.value;
+          return {
+            data: {
+              messages: chatMessages.map(MessagePresenter.toHTTP),
+              totalPages
+            }
+          };
         }
         return null;
       }),

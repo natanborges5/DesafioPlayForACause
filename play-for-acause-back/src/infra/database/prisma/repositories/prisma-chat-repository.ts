@@ -9,6 +9,19 @@ import { PrismaChatUserMapper } from '../mappers/prisma-chat-user-mapper';
 @Injectable()
 export class PrismaChatsRepository implements ChatsRepository {
   constructor(private prisma: PrismaService) {}
+  async getNumberOfPages(userId: string): Promise<number> {
+    const numberOfChats = await this.prisma.chat.count({
+      where: {
+        users: {
+          some: {
+            userId: userId
+          }
+        }
+      }
+    });
+    const totalPages = Math.ceil(numberOfChats / 20);
+    return totalPages;
+  }
   async findManyRecentByUserId(
     { page }: PaginationParams,
     userId: string

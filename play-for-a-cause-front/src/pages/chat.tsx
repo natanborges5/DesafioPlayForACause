@@ -8,10 +8,11 @@ import { Header } from '@/components/Header';
 import { AuthContext } from '@/contexts/AuthContext';
 import { api } from '@/services/api';
 import { AppError } from '@/utils/AppError';
-import { Box, Button, Flex, Grid, GridItem, HStack, Heading, Input, InputGroup, InputRightElement, useDisclosure, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, GridItem, HStack, Heading, IconButton, Input, InputGroup, InputRightElement, useDisclosure, useToast, Text } from '@chakra-ui/react';
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { MdSend } from 'react-icons/md';
+import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 type NewMessageProps = {
     authorId: string
     chatId: string
@@ -29,6 +30,7 @@ const MemoizedShortChatCard = memo(ShortChatCard)
 const MemoizedLongChatCard = memo(LongChat)
 export default function Chat() {
     const [isLoading, setIsLoading] = useState(false);
+    const [chatSelectedPage, setChatSelectedPage] = useState(1);
     const [localChats, setLocalChats] = useState<ChatsWithLastMessageDetailed[]>()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { user } = useContext(AuthContext)
@@ -37,13 +39,13 @@ export default function Chat() {
 
     const toast = useToast()
     async function fetchUserChats() {
-        const sse = new EventSource(`http://localhost:3333/chats/sse/${user?.id}`);
+        const sse = new EventSource(`http://localhost:3333/chats/sse?userId=${user?.id}&page=${chatSelectedPage}`);
         async function getRealtimeData(event: MessageEvent) {
             const chatDetailed: ChatsWithLastMessageDetailed[] = []
             try {
                 const data = JSON.parse(event.data);
-                if (Array.isArray(data.data)) {
-                    const chats: ChatDto[] = data.data
+                if (Array.isArray(data.data.chats)) {
+                    const chats: ChatDto[] = data.data.chats
                     for (const chat of chats) {
                         const newChatDetaild: ChatsWithLastMessageDetailed = {
                             ...chat,
@@ -69,7 +71,6 @@ export default function Chat() {
                 })
             }
             finally {
-                console.log(chatDetailed)
                 setLocalChats(chatDetailed);
                 setIsLoading(false);
             }
@@ -145,6 +146,29 @@ export default function Chat() {
                         <Button size={"md"} colorScheme="yellow" onClick={onOpen}>
                             <IoMdAddCircleOutline size="2rem" />
                         </Button>
+                    </Flex>
+                    <Flex mt={4} justify={"space-evenly"}>
+                        <IconButton
+                            color="gray.100"
+                            fontSize="28"
+                            variant="unstyled"
+                            onClick={() => setChatSelectedPage((prevPage) => Math.max(1, prevPage - 1))}
+                            mr={"auto"}
+                            _hover={{
+                                color: 'yellow.500',
+                            }} aria-label="Users info" icon={<FaArrowLeft />} >
+                        </IconButton>
+                        <Text textAlign={"center"} fontSize={"2xl"} color={"yellow.400"}>Pagina: {chatSelectedPage}</Text>
+                        <IconButton
+                            color="gray.100"
+                            fontSize="28"
+                            variant="unstyled"
+                            onClick={() => setChatSelectedPage((prevPage) => Math.max(1, prevPage + 1))}
+                            ml="auto"
+                            _hover={{
+                                color: 'yellow.500',
+                            }} aria-label="Users info" icon={<FaArrowRight />} >
+                        </IconButton>
                     </Flex>
 
                     <Box mt={6}>

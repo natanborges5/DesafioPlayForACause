@@ -7,6 +7,15 @@ import { PrismaChatMessageMapper } from '../mappers/prisma-chat-message-mapper';
 @Injectable()
 export class PrismaChatMessageRepository implements ChatMessagesRepository {
   constructor(private prisma: PrismaService) {}
+  async getNumberOfPages(chatId: string): Promise<number> {
+    const numberOfMessages = await this.prisma.message.count({
+      where: {
+        chatId: chatId
+      }
+    });
+    const totalPages = Math.ceil(numberOfMessages / 20);
+    return totalPages;
+  }
   async findById(id: string): Promise<ChatMessage | null> {
     const message = await this.prisma.message.findUnique({
       where: {

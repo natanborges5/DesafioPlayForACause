@@ -11,4 +11,5 @@ export abstract class ChatsRepository {
   abstract create(chat: Chat): Promise<void>;
   abstract save(chat: Chat): Promise<void>;
   abstract delete(chat: Chat): Promise<void>;
+  abstract getNumberOfPages(userId: string): Promise<number>;
 }

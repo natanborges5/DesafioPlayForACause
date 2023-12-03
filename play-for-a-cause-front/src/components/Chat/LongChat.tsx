@@ -25,8 +25,8 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
         function getRealtimeData(event: MessageEvent) {
             try {
                 const data = JSON.parse(event.data);
-                if (Array.isArray(data.data)) {
-                    setMessages(data.data);
+                if (Array.isArray(data.data.messages)) {
+                    setMessages(data.data.messages);
                     setIsLoading(false);
                 }
             } catch (error) {
@@ -101,20 +101,24 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
                         </IconButton>
                     </Flex>
 
-                    {messages.map((message) => {
-                        const authorUser = usersOnChat.find((user) => user.id === message.authorId);
-                        const authorName = authorUser ? authorUser.name : 'Unknown User';
+                    {messages.length > 0 ? (
+                        messages.map((message) => {
+                            const authorUser = usersOnChat.find((user) => user.id === message.authorId);
+                            const authorName = authorUser ? authorUser.name : 'Unknown User';
 
-                        return (
-                            <MessageBox
-                                key={message.id}
-                                author={authorName}
-                                content={message.content}
-                                date={message.createdAt}
-                                variant={user?.id === message.authorId}
-                            />
-                        );
-                    })}
+                            return (
+                                <MessageBox
+                                    key={message.id}
+                                    author={authorName}
+                                    content={message.content}
+                                    date={message.createdAt}
+                                    variant={user?.id === message.authorId}
+                                />
+                            );
+                        })
+                    ) : (
+                        <Text>Nenhuma mensagem enviada.</Text>
+                    )}
                 </Box>
             }
             <UsersOnChatsModal
