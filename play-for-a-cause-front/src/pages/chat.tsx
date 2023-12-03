@@ -37,38 +37,51 @@ export default function Chat() {
 
     const toast = useToast()
     async function fetchUserChats() {
-        const chatDetailed: ChatsWithLastMessageDetailed[] = []
-        try {
-            setIsLoading(true);
-            const response = await api.get("/chats/user", {
-                params:
-                {
-                    page: 1,
-                    userId: user?.id
+        const sse = new EventSource(`http://localhost:3333/chats/sse/${user?.id}`);
+        async function getRealtimeData(event: MessageEvent) {
+            const chatDetailed: ChatsWithLastMessageDetailed[] = []
+            try {
+                const data = JSON.parse(event.data);
+                if (Array.isArray(data.data)) {
+                    const chats: ChatDto[] = data.data
+                    for (const chat of chats) {
+                        const newChatDetaild: ChatsWithLastMessageDetailed = {
+                            ...chat,
+                            lastMessage: undefined
+                        }
+                        if (chat.lastMessage) {
+                            const response = await api.get(`/messages/${chat.lastMessage}`)
+                            newChatDetaild.lastMessage = response.data.message
+                        }
+                        chatDetailed.push(newChatDetaild)
+                    }
                 }
-            })
-            const chats: ChatDto[] = response.data.chats
-            console.log(chats)
-            for (const chat of chats) {
-                const newChatDetaild: ChatsWithLastMessageDetailed = {
-                    ...chat,
-                    lastMessage: undefined
-                }
-                if (chat.lastMessage) {
-                    const response = await api.get(`/messages/${chat.lastMessage}`)
-                    newChatDetaild.lastMessage = response.data.message
-                }
-                chatDetailed.push(newChatDetaild)
+            } catch (error) {
+                const isAppError = error instanceof AppError
+                const title = isAppError
+                    ? error.message
+                    : 'Não foi possível carregar as mensagens. Tente novamente mais tarde.'
+                toast({
+                    title,
+                    status: 'error',
+                    duration: 6000,
+                    isClosable: true,
+                })
             }
-        } catch (error) {
-            const isAppError = error instanceof AppError
-            const title = isAppError
-                ? error.message
-                : 'Não foi possível atualizar. Tente novamente mais tarde.'
-            throw new AppError(title)
-        } finally {
-            setLocalChats(chatDetailed)
+            finally {
+                console.log(chatDetailed)
+                setLocalChats(chatDetailed);
+                setIsLoading(false);
+            }
         }
+        sse.onmessage = getRealtimeData;
+        sse.onerror = () => {
+            sse.close();
+        };
+
+        return () => {
+            sse.close();
+        };
     }
     async function sendMessage() {
         try {

@@ -22,7 +22,7 @@ export class PrismaChatsRepository implements ChatsRepository {
         }
       },
       orderBy: {
-        createdAt: 'desc'
+        updatedAt: 'desc'
       },
       take: 20,
       skip: (page - 1) * 20

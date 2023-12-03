@@ -53,7 +53,6 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     }, [chat]);
     async function getUsersDetails() {
         const newUsersOnChat: UserDto[] = []
-        console.log("teste")
         try {
             setIsLoading(true);
             for (const user of chat.users) {

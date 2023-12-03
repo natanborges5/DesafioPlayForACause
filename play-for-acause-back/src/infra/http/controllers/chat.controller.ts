@@ -4,8 +4,10 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
   Post,
-  Query
+  Query,
+  Sse
 } from '@nestjs/common';
 import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation-pipe';
 import { z } from 'zod';
@@ -13,6 +15,8 @@ import { CreateChatUseCase } from '@/domain/application/use-cases/chat/create-ch
 import { ChatPresenter } from '../presenters/chat-presenter';
 import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-recent-chats';
 import { FetchUserRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-user-recent-chats';
+import { Public } from '@/infra/auth/public';
+import { Observable, from, interval, map, switchMap } from 'rxjs';
 
 const chatSchema = z.object({
   name: z.string(),
@@ -79,5 +83,22 @@ export class ChatController {
     if (result.isLeft()) {
       throw new BadRequestException(result.value.message);
     }
+  }
+  @Public()
+  @Sse('sse/:userId')
+  sse(@Param('userId') userId: string): Observable<MessageEvent> {
+    return interval(1000).pipe(
+      switchMap(() =>
+        from(this.fetchUserRecentChats.execute({ userId, page: 1 }))
+      ),
+      map((result) => {
+        if (result.isRight()) {
+          const messages = result.value.chats;
+          return { data: messages.map(ChatPresenter.toHTTP) };
+        }
+        return null;
+      }),
+      map((data) => ({ data }) as MessageEvent)
+    );
   }
 }
