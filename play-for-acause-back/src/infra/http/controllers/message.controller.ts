@@ -54,7 +54,8 @@ export class MessageController {
     }
     const messages = result.value.chatMessages;
     return {
-      messages: messages.map(MessagePresenter.toHTTP)
+      messages: messages.map(MessagePresenter.toHTTP),
+      totalPages: result.value.totalPages
     };
   }
   @Post()
@@ -88,15 +89,17 @@ export class MessageController {
   }
   @Public()
   @Sse('sse/:chatId')
-  sse(@Param('chatId') chatId: string): Observable<MessageEvent> {
+  sse(
+    @Param('chatId') chatId: string,
+    @Query('page') page: string
+  ): Observable<MessageEvent> {
     return interval(1000).pipe(
       switchMap(() =>
-        from(this.fetchMessagesByChat.execute({ chatId, page: 1 }))
+        from(this.fetchMessagesByChat.execute({ chatId, page: +page || 1 }))
       ),
       map((result) => {
         if (result.isRight()) {
           const { chatMessages, totalPages } = result.value;
-          console.log(chatMessages.length);
           return {
             data: {
               messages: chatMessages.map(MessagePresenter.toHTTP),

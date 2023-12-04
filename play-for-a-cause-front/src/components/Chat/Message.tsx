@@ -6,7 +6,7 @@ type MessageBoxProps = {
     content: string
     date: string
     lastItem: boolean
-    loadPreviousMessage: () => void | ((prev: number) => void);
+    loadPreviousMessage: () => void
 }
 export function MessageBox({
     variant,
@@ -51,7 +51,7 @@ export function MessageBox({
                 </VStack>
             </Box>
             {lastItem && <Center mt={10}>
-                <Button onClick={() => loadPreviousMessage()}>
+                <Button onClick={loadPreviousMessage}>
                     Carregar mensagens
                 </Button>
             </Center>

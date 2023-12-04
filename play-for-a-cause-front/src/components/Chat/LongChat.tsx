@@ -17,7 +17,8 @@ type ApiResponse = {
 export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     const [messages, setMessages] = useState<ChatMessageDto[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [chatMessagePage, setChatMessagePage] = useState(1)
+    const [chatMessagePage, setChatMessagePage] = useState(2)
+    const [chatMessageTotalNumberOfPages, setChatMessageTotalNumberOfPages] = useState(0)
     const [usersOnChat, setUsersOnChat] = useState<UserDto[]>([])
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { user } = useContext(AuthContext)
@@ -25,7 +26,8 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     useEffect(() => {
         setIsLoading(true);
         getUsersDetails()
-        const sse = new EventSource(`http://localhost:3333/messages/sse/${chat.id}`);
+        setMessages([])
+        const sse = new EventSource(`http://localhost:3333/messages/sse/${chat.id}?page=1`);
         sse.onmessage = getRealtimeData;
         sse.onerror = () => {
             sse.close();
@@ -38,14 +40,35 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     function getRealtimeData(event: MessageEvent) {
         try {
             const data: ApiResponse = JSON.parse(event.data).data;
+            setChatMessageTotalNumberOfPages(data.totalPages)
             setMessages((prevMessages) => {
                 const newMessages = data.messages.filter((newMessage) => {
                     return !prevMessages.some((prevMessage) => prevMessage.id === newMessage.id);
                 });
                 if (newMessages.length > 0) {
-                    console.log("novas mensagens encontradas");
                     setIsLoading(false);
                     return [...newMessages, ...prevMessages,];
+                }
+                return prevMessages;
+            });
+
+        } catch (error) {
+            // handle error
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    async function getRealOldMessagesData() {
+        try {
+            const response = await api.get(`/messages?chatId=${chat.id}&page=${chatMessagePage}`)
+            const data: ApiResponse = response.data
+            setMessages((prevMessages) => {
+                const newMessages = data.messages.filter((newMessage) => {
+                    return !prevMessages.some((prevMessage) => prevMessage.id === newMessage.id);
+                });
+                if (newMessages.length > 0) {
+                    setIsLoading(false);
+                    return [...prevMessages, ...newMessages,];
                 }
                 return prevMessages;
             });
@@ -81,10 +104,9 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
             setIsLoading(true);
         }
     }
-    function loadPreviousMessages() {
-        // A lógica para carregar mensagens anteriores e atualizar o estado
+    async function loadPreviousMessages() {
         setChatMessagePage((prev) => prev + 1);
-        console.log(chatMessagePage)
+        await getRealOldMessagesData()
     }
     return (
         <Box>
@@ -123,7 +145,7 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
                                     content={message.content}
                                     date={message.createdAt}
                                     variant={user?.id === message.authorId}
-                                    lastItem={messages.length === index + 1 && messages.length === 20}
+                                    lastItem={messages.length === index + 1 && messages.length === 20 && chatMessageTotalNumberOfPages !== chatMessagePage - 1}
                                     loadPreviousMessage={loadPreviousMessages}
                                 />
                             );
