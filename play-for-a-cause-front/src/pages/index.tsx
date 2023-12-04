@@ -42,6 +42,7 @@ export default function Home() {
                     <IoIosChatboxes size="3rem" />
                 </HStack>
                 <Input
+                    isRequired
                     label="E-mail"
                     pk="email"
                     type="email"
@@ -49,6 +50,7 @@ export default function Home() {
                 />
 
                 <Input
+                    isRequired
                     label="Password"
                     pk="password"
                     type="password"

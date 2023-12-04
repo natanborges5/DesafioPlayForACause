@@ -24,6 +24,7 @@ import { useContext, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useMutation } from '@tanstack/react-query';
 import { AuthContext } from '@/contexts/AuthContext';
+import { AppError } from '@/utils/AppError';
 interface ModalNewChatProps {
     isOpen: boolean
     onClose: () => void
@@ -65,7 +66,16 @@ export function ModalNewChat({ isOpen, onClose }: ModalNewChatProps) {
             );
             return optionsWithoutUser;
         } catch (error) {
-            console.error('Error loading options:', error);
+            const isAppError = error instanceof AppError
+            const title = isAppError
+                ? error.message
+                : 'Não foi possível carregar os usuarios. Tente novamente mais tarde.'
+            toast({
+                title,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
             return [];
         }
     };
@@ -85,12 +95,16 @@ export function ModalNewChat({ isOpen, onClose }: ModalNewChatProps) {
                 isClosable: true,
             });
         } catch (error) {
+            const isAppError = error instanceof AppError
+            const title = isAppError
+                ? error.message
+                : 'Não foi possível criar o chat. Tente novamente mais tarde.'
             toast({
-                title: 'Erro Criando Grupo.',
+                title,
                 status: 'error',
-                duration: 3000,
-                isClosable: true
-            });
+                duration: 9000,
+                isClosable: true,
+            })
         }
     });
     const handleCreateChat: SubmitHandler<FormState> = async (values) => {
@@ -99,7 +113,16 @@ export function ModalNewChat({ isOpen, onClose }: ModalNewChatProps) {
             await createChat.mutateAsync(values);
             onClose()
         } catch (error) {
-            console.error('Error loading options:', error);
+            const isAppError = error instanceof AppError
+            const title = isAppError
+                ? error.message
+                : 'Não foi possível criar o chat. Tente novamente mais tarde.'
+            toast({
+                title,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         finally {
             setIsLoading(false)

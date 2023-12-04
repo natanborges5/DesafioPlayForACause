@@ -21,7 +21,7 @@ api.interceptors.response.use(
             if (error.response?.status === 401) {
                 SignOut()
             }
-            return Promise.reject(new AppError(error.response.data.error))
+            return Promise.reject(new AppError(error.response.data.message))
         } else {
             return Promise.reject(error)
         }

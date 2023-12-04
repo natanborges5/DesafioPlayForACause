@@ -53,7 +53,16 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
             });
 
         } catch (error) {
-            // handle error
+            const isAppError = error instanceof AppError
+            const title = isAppError
+                ? error.message
+                : 'Não foi possível criar atualizar as mensagens. Tente novamente mais tarde.'
+            toast({
+                title,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         } finally {
             setIsLoading(false);
         }
@@ -74,7 +83,16 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
             });
 
         } catch (error) {
-            // handle error
+            const isAppError = error instanceof AppError
+            const title = isAppError
+                ? error.message
+                : 'Não foi possível carregar as mensagens antigas. Tente novamente mais tarde.'
+            toast({
+                title,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         } finally {
             setIsLoading(false);
         }
