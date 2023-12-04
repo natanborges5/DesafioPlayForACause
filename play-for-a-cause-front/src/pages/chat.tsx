@@ -36,7 +36,6 @@ export default function Chat() {
     const { user } = useContext(AuthContext)
     const [selectedChat, setSelectedChat] = useState<ChatsWithLastMessageDetailed>()
     const [messageContent, setMessageContent] = React.useState('')
-
     const toast = useToast()
     async function fetchUserChats() {
         const sse = new EventSource(`http://localhost:3333/chats/sse?userId=${user?.id}&page=${chatSelectedPage}`);

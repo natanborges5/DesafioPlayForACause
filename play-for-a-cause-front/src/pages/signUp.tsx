@@ -1,22 +1,20 @@
 import { Input } from "@/components/Form/Input";
 import { AuthContext } from "@/contexts/AuthContext";
-import { Button, Flex, HStack, Heading, Link } from "@chakra-ui/react";
+import { Button, Flex } from "@chakra-ui/react";
 import { useContext } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { IoIosChatboxes } from "react-icons/io";
 
 type FormState = {
+    name: string
     email: string;
     password: string;
 };
 
-export default function Home() {
+export default function SignUp() {
 
     const { register, handleSubmit, formState } = useForm<FormState>();
-    const { signIn } = useContext(AuthContext);
 
     const handleLogin: SubmitHandler<FormState> = async (values) => {
-        await signIn(values);
     }
 
     return (
@@ -26,7 +24,6 @@ export default function Home() {
             alignItems="Center"
             justify="center"
         >
-
             <Flex
                 as="form"
                 width="100%"
@@ -37,10 +34,12 @@ export default function Home() {
                 flexDir="column"
                 onSubmit={handleSubmit(handleLogin)}
             >
-                <HStack color={"white.400"} justify={"center"}>
-                    <Heading>ChatPlay</Heading>
-                    <IoIosChatboxes size="3rem" />
-                </HStack>
+                <Input
+                    label="Nome"
+                    pk="name"
+                    type="text"
+                    {...register('name')}
+                />
                 <Input
                     label="E-mail"
                     pk="email"
@@ -60,9 +59,8 @@ export default function Home() {
                     mt="6"
                     colorScheme="yellow"
                     size="lg">
-                    Entrar
+                    Criar conta!
                 </Button>
-                <Link href="/signUp">Ainda nao possui conta?</Link>
             </Flex>
         </Flex>
     )
