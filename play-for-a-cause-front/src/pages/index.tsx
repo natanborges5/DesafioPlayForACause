@@ -1,6 +1,6 @@
 import { Input } from "@/components/Form/Input";
 import { AuthContext } from "@/contexts/AuthContext";
-import { Button, Flex, HStack, Heading, Link } from "@chakra-ui/react";
+import { Button, Flex, HStack, Heading, Link, Text } from "@chakra-ui/react";
 import { useContext } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { IoIosChatboxes } from "react-icons/io";
@@ -62,7 +62,7 @@ export default function Home() {
                     size="lg">
                     Entrar
                 </Button>
-                <Link href="/signUp">Ainda nao possui conta?</Link>
+                <Text mt={4}>Ainda nao possui conta? Clique <Link color={"yellow.400"} href="/signUp">Aqui!</Link></Text>
             </Flex>
         </Flex>
     )

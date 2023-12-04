@@ -1,8 +1,7 @@
 import { Input } from "@/components/Form/Input";
-import { AuthContext } from "@/contexts/AuthContext";
-import { Button, Flex } from "@chakra-ui/react";
-import { useContext } from "react";
+import { Button, Flex, HStack, Heading } from "@chakra-ui/react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { IoIosChatboxes } from "react-icons/io";
 
 type FormState = {
     name: string
@@ -34,6 +33,10 @@ export default function SignUp() {
                 flexDir="column"
                 onSubmit={handleSubmit(handleLogin)}
             >
+                <HStack color={"white.400"} justify={"center"}>
+                    <Heading>ChatPlay</Heading>
+                    <IoIosChatboxes size="3rem" />
+                </HStack>
                 <Input
                     label="Nome"
                     pk="name"

@@ -33,7 +33,7 @@ export default function Chat() {
     const [chatSelectedPage, setChatSelectedPage] = useState(1);
     const [localChats, setLocalChats] = useState<ChatsWithLastMessageDetailed[]>()
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const { user } = useContext(AuthContext)
+    const { user, verifyUser } = useContext(AuthContext)
     const [selectedChat, setSelectedChat] = useState<ChatsWithLastMessageDetailed>()
     const [messageContent, setMessageContent] = React.useState('')
     const toast = useToast()
@@ -109,6 +109,7 @@ export default function Chat() {
         }
     }
     useEffect(() => {
+        verifyUser()
         fetchUserChats()
     }, []);
     return (

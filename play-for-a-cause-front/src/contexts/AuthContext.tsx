@@ -2,7 +2,7 @@ import { api } from '@/services/api'
 import Router from 'next/router'
 import jwt from 'jsonwebtoken'
 import { setCookie, parseCookies, destroyCookie } from 'nookies'
-import { ReactNode, createContext, useEffect, useState } from 'react'
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import { Flex, Spinner } from '@chakra-ui/react'
 import { useToast } from '@chakra-ui/react'
 import { AppError } from '@/utils/AppError'
@@ -24,6 +24,7 @@ type SignInCredentials = {
 
 type AuthContextData = {
     signIn(credentials: SignInCredentials): Promise<void>
+    verifyUser(): Promise<void>
     user?: User
     isAuthenticated: boolean
 }
@@ -40,14 +41,21 @@ export async function SignOut() {
 
     Router.push('/')
 }
-
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+    }
+    return context;
+};
 export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User>()
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const isAuthenticated = !!user
     const toast = useToast()
     const verifyUser = async () => {
         try {
+            setLoading(true)
             const { 'PlayChat.token': token } = parseCookies()
             if (token) {
                 const { exp, email, sub } = jwt.decode(token) as TokenPayload
@@ -75,9 +83,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setLoading(false)
         }
     }
-    useEffect(() => {
-        verifyUser()
-    }, [])
 
     async function signIn({ email, password }: SignInCredentials) {
         try {
@@ -129,12 +134,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
             </Flex>
         )
     }
-    if (!isAuthenticated && Router.pathname !== '/') {
-        return null // Não renderizar nada se o usuário não estiver autenticado
-    }
+
 
     return (
-        <AuthContext.Provider value={{ signIn, isAuthenticated, user }}>
+        <AuthContext.Provider value={{ signIn, isAuthenticated, user, verifyUser }}>
             {children}
         </AuthContext.Provider>
     )
