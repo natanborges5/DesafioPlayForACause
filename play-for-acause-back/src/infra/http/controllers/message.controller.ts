@@ -96,6 +96,7 @@ export class MessageController {
       map((result) => {
         if (result.isRight()) {
           const { chatMessages, totalPages } = result.value;
+          console.log(chatMessages.length);
           return {
             data: {
               messages: chatMessages.map(MessagePresenter.toHTTP),

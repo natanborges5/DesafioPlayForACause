@@ -1,4 +1,3 @@
-import { ChatDto } from '@/Types/ChatDto';
 import { ChatMessageDto } from '@/Types/ChatMessageDto'
 import { Box, Button, Center, Flex, IconButton, Spacer, Spinner, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import { useEffect, useState, useContext } from 'react'
@@ -11,9 +10,14 @@ import { UserDto } from '@/Types/UserDto';
 import { FaUsers } from "react-icons/fa";
 import { UsersOnChatsModal } from '../Users';
 import { api } from '@/services/api';
+type ApiResponse = {
+    messages: ChatMessageDto[];
+    totalPages: number;
+};
 export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     const [messages, setMessages] = useState<ChatMessageDto[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [chatMessagePage, setChatMessagePage] = useState(1)
     const [usersOnChat, setUsersOnChat] = useState<UserDto[]>([])
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { user } = useContext(AuthContext)
@@ -22,26 +26,6 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
         setIsLoading(true);
         getUsersDetails()
         const sse = new EventSource(`http://localhost:3333/messages/sse/${chat.id}`);
-        function getRealtimeData(event: MessageEvent) {
-            try {
-                const data = JSON.parse(event.data);
-                if (Array.isArray(data.data.messages)) {
-                    setMessages(data.data.messages);
-                    setIsLoading(false);
-                }
-            } catch (error) {
-                const isAppError = error instanceof AppError
-                const title = isAppError
-                    ? error.message
-                    : 'Não foi possível carregar as mensagens. Tente novamente mais tarde.'
-                toast({
-                    title,
-                    status: 'error',
-                    duration: 6000,
-                    isClosable: true,
-                })
-            }
-        }
         sse.onmessage = getRealtimeData;
         sse.onerror = () => {
             sse.close();
@@ -51,6 +35,28 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
             sse.close();
         };
     }, [chat]);
+    function getRealtimeData(event: MessageEvent) {
+        try {
+            const data: ApiResponse = JSON.parse(event.data).data;
+            setMessages((prevMessages) => {
+                const newMessages = data.messages.filter((newMessage) => {
+                    return !prevMessages.some((prevMessage) => prevMessage.id === newMessage.id);
+                });
+                if (newMessages.length > 0) {
+                    console.log("novas mensagens encontradas");
+                    setIsLoading(false);
+                    return [...newMessages, ...prevMessages,];
+                }
+                return prevMessages;
+            });
+
+        } catch (error) {
+            // handle error
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     async function getUsersDetails() {
         const newUsersOnChat: UserDto[] = []
         try {
@@ -74,6 +80,11 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
             setUsersOnChat(newUsersOnChat)
             setIsLoading(true);
         }
+    }
+    function loadPreviousMessages() {
+        // A lógica para carregar mensagens anteriores e atualizar o estado
+        setChatMessagePage((prev) => prev + 1);
+        console.log(chatMessagePage)
     }
     return (
         <Box>
@@ -102,10 +113,9 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
                     </Flex>
 
                     {messages.length > 0 ? (
-                        messages.map((message) => {
+                        messages.map((message, index) => {
                             const authorUser = usersOnChat.find((user) => user.id === message.authorId);
                             const authorName = authorUser ? authorUser.name : 'Unknown User';
-
                             return (
                                 <MessageBox
                                     key={message.id}
@@ -113,6 +123,8 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
                                     content={message.content}
                                     date={message.createdAt}
                                     variant={user?.id === message.authorId}
+                                    lastItem={messages.length === index + 1 && messages.length === 20}
+                                    loadPreviousMessage={loadPreviousMessages}
                                 />
                             );
                         })

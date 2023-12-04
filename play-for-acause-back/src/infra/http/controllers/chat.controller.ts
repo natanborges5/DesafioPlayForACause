@@ -84,7 +84,7 @@ export class ChatController {
     }
   }
   @Public()
-  @Sse('sse/')
+  @Sse('/sse')
   sse(
     @Query('userId') userId: string,
     @Query('page') page: number

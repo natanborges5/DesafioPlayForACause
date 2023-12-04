@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { ChatMessagesRepository } from '@/domain/application/repositories/chat-messages-repository';
 import { ChatMessage } from '@/domain/enterprise/entities/chat-message';
 import { PrismaChatMessageMapper } from '../mappers/prisma-chat-message-mapper';
+import { PaginationParams } from '@/core/entities/pagination-params';
 
 @Injectable()
 export class PrismaChatMessageRepository implements ChatMessagesRepository {
@@ -40,11 +41,19 @@ export class PrismaChatMessageRepository implements ChatMessagesRepository {
       data
     });
   }
-  async findManyByChatId(chatId: string): Promise<ChatMessage[]> {
+  async findManyByChatId(
+    chatId: string,
+    { page }: PaginationParams
+  ): Promise<ChatMessage[]> {
     const serviceEmployees = await this.prisma.message.findMany({
       where: {
         chatId
-      }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: 20,
+      skip: (page - 1) * 20
     });
     return serviceEmployees.map(PrismaChatMessageMapper.toDomain);
   }

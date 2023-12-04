@@ -40,6 +40,7 @@ export default function Chat() {
     const toast = useToast()
     async function fetchUserChats() {
         const sse = new EventSource(`http://localhost:3333/chats/sse?userId=${user?.id}&page=${chatSelectedPage}`);
+        console.log(sse.url)
         async function getRealtimeData(event: MessageEvent) {
             const chatDetailed: ChatsWithLastMessageDetailed[] = []
             try {
