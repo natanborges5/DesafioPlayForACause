@@ -73,7 +73,8 @@ describe('Message (E2E)', () => {
         expect.objectContaining({ authorId: user.id.toString() }),
         expect.objectContaining({ authorId: user.id.toString() }),
         expect.objectContaining({ authorId: user.id.toString() })
-      ])
+      ]),
+      totalPages: 1
     });
   });
 });

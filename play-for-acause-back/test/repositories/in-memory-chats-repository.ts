@@ -4,6 +4,15 @@ import { Chat } from '@/domain/enterprise/entities/chat';
 
 export class InMemoryChatsRepository implements ChatsRepository {
   constructor() {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getNumberOfPages(userId: string): Promise<number> {
+    return new Promise((resolve) => {
+      const numberOfChats = this.items.length;
+      const carsPerPage = 20;
+      const totalPages = Math.ceil(numberOfChats / carsPerPage);
+      resolve(totalPages);
+    });
+  }
   async findManyRecentByUserId(
     { page }: PaginationParams,
     userId: string

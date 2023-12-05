@@ -2,6 +2,15 @@ import { PaginationParams } from '@/core/entities/pagination-params';
 import { ChatMessagesRepository } from '@/domain/application/repositories/chat-messages-repository';
 import { ChatMessage } from '@/domain/enterprise/entities/chat-message';
 export class InMemoryChatMessagesRepository implements ChatMessagesRepository {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getNumberOfPages(chatId: string): Promise<number> {
+    return new Promise((resolve) => {
+      const numberOfMessages = this.items.length;
+      const carsPerPage = 20;
+      const totalPages = Math.ceil(numberOfMessages / carsPerPage);
+      resolve(totalPages);
+    });
+  }
   public items: ChatMessage[] = [];
   async create(chatMessage: ChatMessage) {
     this.items.push(chatMessage);
