@@ -28,6 +28,18 @@ export type ChatsWithLastMessageDetailed = {
 }
 const MemoizedShortChatCard = memo(ShortChatCard)
 const MemoizedLongChatCard = memo(LongChat)
+const cssScrollBar = {
+    '&::-webkit-scrollbar': {
+        width: '0px', // Largura da barra de rolagem
+    },
+    '&::-webkit-scrollbar-thumb': {
+        background: 'teal.500', // Cor da alça da barra de rolagem
+        borderRadius: '6px', // Borda arredondada
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+        background: 'teal.700', // Cor da alça ao passar o mouse
+    },
+}
 export default function Chat() {
     const [isLoading, setIsLoading] = useState(false);
     const [chatSelectedPage, setChatSelectedPage] = useState(1);
@@ -39,7 +51,6 @@ export default function Chat() {
     const toast = useToast()
     async function fetchUserChats() {
         const sse = new EventSource(`http://localhost:3333/chats/sse?userId=${user?.id}&page=${chatSelectedPage}`);
-        console.log(sse.url)
         async function getRealtimeData(event: MessageEvent) {
             const chatDetailed: ChatsWithLastMessageDetailed[] = []
             try {
@@ -122,22 +133,8 @@ export default function Chat() {
                 gap={4}
             >
                 <GridItem
-                    css={{
-                        '&::-webkit-scrollbar': {
-                            width: '0px', // Largura da barra de rolagem
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            background: 'teal.500', // Cor da alça da barra de rolagem
-                            borderRadius: '6px', // Borda arredondada
-                        },
-                        '&::-webkit-scrollbar-thumb:hover': {
-                            background: 'teal.700', // Cor da alça ao passar o mouse
-                        },
-                    }}
-                    rowSpan={{ base: 10, md: 10 }}
-                    colSpan={{ base: 1, md: 1 }}
-                    w={'auto'}
-                    overflowY="auto"
+                    rowSpan={{ base: 4, md: 10 }}
+                    colSpan={{ base: 10, md: 1 }}
                     bg="gray.800"
                     borderRadius={'md'}
                     p={4}
@@ -172,7 +169,10 @@ export default function Chat() {
                         </IconButton>
                     </Flex>
 
-                    <Box mt={6}>
+                    <Flex direction={{ base: "row", md: "column" }} p={2} mt={6}
+                        css={cssScrollBar}
+                        h={"80%"}
+                        overflowY="auto">
                         {localChats?.map((chat, index) => (
                             <MemoizedShortChatCard
                                 key={index}
@@ -182,27 +182,16 @@ export default function Chat() {
                                 onClick={() => { setSelectedChat(chat) }}
                             />
                         ))}
-                    </Box>
+                    </Flex>
                 </GridItem>
                 <GridItem
-                    colSpan={4}
-                    rowSpan={8}
+                    rowSpan={{ base: 4, md: 8 }}
+                    colSpan={{ base: 10, md: 4 }}
                     bg="gray.800"
                     p={6}
                     borderRadius={'md'}
                     overflowY="auto"
-                    css={{
-                        '&::-webkit-scrollbar': {
-                            width: '0px', // Largura da barra de rolagem
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            background: 'teal.500', // Cor da alça da barra de rolagem
-                            borderRadius: '6px', // Borda arredondada
-                        },
-                        '&::-webkit-scrollbar-thumb:hover': {
-                            background: 'teal.700', // Cor da alça ao passar o mouse
-                        },
-                    }}
+                    css={cssScrollBar}
                 >
                     {selectedChat && (
                         <MemoizedLongChatCard
@@ -211,8 +200,8 @@ export default function Chat() {
                     )}
                 </GridItem>
                 <GridItem
-                    colSpan={4}
-                    rowSpan={2}
+                    rowSpan={{ base: 2, md: 4 }}
+                    colSpan={{ base: 10, md: 4 }}
                     px={2}
                 >
                     {selectedChat && (

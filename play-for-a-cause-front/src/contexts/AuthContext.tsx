@@ -41,13 +41,6 @@ export async function SignOut() {
 
     Router.push('/')
 }
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth deve ser usado dentro de um AuthProvider');
-    }
-    return context;
-};
 export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User>()
     const [loading, setLoading] = useState(false)
@@ -134,7 +127,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             </Flex>
         )
     }
-
 
     return (
         <AuthContext.Provider value={{ signIn, isAuthenticated, user, verifyUser }}>

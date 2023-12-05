@@ -1,4 +1,4 @@
-import { Box, Button, Center, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, Text, VStack } from '@chakra-ui/react'
 
 type MessageBoxProps = {
     variant: boolean
@@ -17,7 +17,7 @@ export function MessageBox({
     loadPreviousMessage
 }: MessageBoxProps) {
     return (
-        <Box>
+        <Flex>
             <Box
                 ml={variant ? "auto" : ""}
                 bg="gray.900"
@@ -27,7 +27,7 @@ export function MessageBox({
                 py={4}
                 px={2}
                 mb={3}
-                w={"50%"}
+                w={"70%"}
                 _hover={{
                     transform: 'scale(1.01)',
                     borderWidth: '2px',
@@ -42,6 +42,7 @@ export function MessageBox({
                         fontSize={{ base: 'xl', md: 'md' }}
                         fontWeight={'bold'}
                         color={'yellow.400'}
+                        maxInlineSize={"100%"}
                     >
                         {content}
                     </Text>
@@ -56,7 +57,7 @@ export function MessageBox({
                 </Button>
             </Center>
             }
-        </Box>
+        </Flex>
 
     )
 }

@@ -14,13 +14,16 @@ export function ShortChatCard({
 }: ShortEmailCardProps) {
     return (
         <Box
+            minWidth={{ base: "200px", md: "auto" }}
+            minH={{ base: "200px", md: "auto" }}
+            mr={{ base: 2, md: 0 }}
             onClick={onClick}
             cursor={'pointer'}
             bg="gray.900"
             border={'1px solid'}
             borderRadius={'xl'}
             borderColor={'yellow.400'}
-            py={6}
+            py={{ base: 4, md: 6 }}
             px={3}
             mb={4}
             _hover={{
@@ -30,18 +33,20 @@ export function ShortChatCard({
             transition={'transform 0.5s'}
         >
             <VStack textAlign={'left'} align={'start'}>
-                <Text fontSize={{ base: 'lg', md: 'md' }} fontWeight={'bold'}>
+                <Text fontSize={{ base: 'xl', md: 'lg' }} fontWeight={'bold'}>
                     {name}
                 </Text>
                 <Divider borderColor={'yellow.400'} />
                 <Text
-                    fontSize={{ base: 'xl', md: 'lg' }}
+                    fontSize={{ base: 'lg', md: 'md' }}
                     fontWeight={'bold'}
                     color={'yellow.400'}
+                    noOfLines={3}
+                    maxInlineSize={"250px"}
                 >
                     {message}
                 </Text>
-                <Text fontSize={{ base: 'lg', md: 'md' }} noOfLines={2}>
+                <Text fontSize={{ base: 'md', md: 'sm' }} noOfLines={2}>
                     {author}
                 </Text>
             </VStack>
