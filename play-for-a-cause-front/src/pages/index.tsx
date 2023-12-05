@@ -1,6 +1,7 @@
 import { Input } from "@/components/Form/Input";
+import { ModalNewAccount } from "@/components/SignUp/newUserModal";
 import { AuthContext } from "@/contexts/AuthContext";
-import { Button, Flex, HStack, Heading, Link, Text } from "@chakra-ui/react";
+import { Button, Flex, HStack, Heading, Link, Text, useDisclosure } from "@chakra-ui/react";
 import { useContext } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { IoIosChatboxes } from "react-icons/io";
@@ -14,7 +15,7 @@ export default function Home() {
 
     const { register, handleSubmit, formState } = useForm<FormState>();
     const { signIn } = useContext(AuthContext);
-
+    const { isOpen, onOpen, onClose } = useDisclosure()
     const handleLogin: SubmitHandler<FormState> = async (values) => {
         await signIn(values);
     }
@@ -64,8 +65,18 @@ export default function Home() {
                     size="lg">
                     Entrar
                 </Button>
-                <Text mt={4}>Ainda nao possui conta? Clique <Link color={"yellow.400"} href="/signUp">Aqui!</Link></Text>
+                <Button
+                    mt="6"
+                    colorScheme="green"
+                    onClick={onOpen}
+                    size="lg">
+                    Criar Conta
+                </Button>
             </Flex>
+            <ModalNewAccount
+                isOpen={isOpen}
+                onClose={onClose}
+            />
         </Flex>
     )
 }

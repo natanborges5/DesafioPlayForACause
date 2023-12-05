@@ -35,13 +35,12 @@ export function MessageBox({
                 transition={'transform 0.5s'}
             >
                 <VStack textAlign={'left'} align={'start'}>
-                    <Text fontSize={{ base: 'md', md: 'sm' }} fontWeight={'bold'}>
+                    <Text fontSize={{ base: 'lg', md: 'md' }} fontWeight={'bold'} color={'yellow.400'}>
                         {author}
                     </Text>
                     <Text
-                        fontSize={{ base: 'xl', md: 'md' }}
+                        fontSize={{ base: 'lg', md: 'md' }}
                         fontWeight={'bold'}
-                        color={'yellow.400'}
                         maxInlineSize={"100%"}
                     >
                         {content}

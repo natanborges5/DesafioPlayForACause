@@ -1,5 +1,5 @@
 import { api } from '@/services/api'
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 import jwt from 'jsonwebtoken'
 import { setCookie, parseCookies, destroyCookie } from 'nookies'
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
@@ -46,6 +46,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [loading, setLoading] = useState(false)
     const isAuthenticated = !!user
     const toast = useToast()
+    const router = useRouter()
     const verifyUser = async () => {
         try {
             setLoading(true)
@@ -76,7 +77,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setLoading(false)
         }
     }
-
+    useEffect(() => {
+        verifyUser()
+    }, [])
     async function signIn({ email, password }: SignInCredentials) {
         try {
             const response = await api.post('/sessions', {
@@ -101,7 +104,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 duration: 4000,
                 isClosable: true,
             })
-            Router.push('/chat')
+            router.push('/chat')
         } catch (error) {
             const isAppError = error instanceof AppError
             const title = isAppError
@@ -127,7 +130,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             </Flex>
         )
     }
-
+    if (!isAuthenticated && router.pathname !== '/') {
+        return null // Não renderizar nada se o usuário não estiver autenticado
+    }
     return (
         <AuthContext.Provider value={{ signIn, isAuthenticated, user, verifyUser }}>
             {children}
