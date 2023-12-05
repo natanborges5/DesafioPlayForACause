@@ -124,6 +124,12 @@ export default function Chat() {
             })
         }
     }
+    const handleKeyDown = (event: { key: string; preventDefault: () => void; }) => {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Evita quebra de linha no input
+            sendMessage();
+        }
+    };
     useEffect(() => {
         fetchUserChats()
         return () => {
@@ -227,6 +233,7 @@ export default function Chat() {
                                 focusBorderColor='yellow.400'
                                 value={messageContent}
                                 onChange={(event) => setMessageContent(event.target.value)}
+                                onKeyDown={handleKeyDown}
                             />
                             <InputRightElement width='4.5rem'>
                                 <Button backgroundColor={"yellow.400"} h='1.75rem' size='sm' onClick={sendMessage}>
