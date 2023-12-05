@@ -11,13 +11,13 @@ export interface MessageProps {
 export abstract class Message<
   Props extends MessageProps
 > extends Entity<Props> {
-  @ApiProperty({ example: 'Hellow world', description: 'Conteudo da mensagem' })
+  @ApiProperty({ example: 'Hellow world', description: 'Message content' })
   get content() {
     return this.props.content;
   }
   @ApiProperty({
     example: new UniqueEntityID().toString(),
-    description: 'Id do sender'
+    description: 'Author id'
   })
   get authorId() {
     return this.props.authorId;

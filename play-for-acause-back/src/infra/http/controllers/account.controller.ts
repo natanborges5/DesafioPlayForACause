@@ -17,13 +17,25 @@ import { UserAlreadyExistsError } from '@/domain/application/use-cases/errors/us
 import { GetUserByEmailUseCase } from '@/domain/application/use-cases/user/get-users-by-email';
 import { UserPresenter } from '../presenters/user-presenter';
 import { GetUserByIdUseCase } from '@/domain/application/use-cases/user/get-user-by-id';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnprocessableEntityResponse
+} from '@nestjs/swagger';
+import { User } from '@/domain/enterprise/entities/user';
 const accountSchema = z.object({
   name: z.string(),
   email: z.string().email(),
   password: z.string()
 });
 type AccountBodySchema = z.infer<typeof accountSchema>;
+
 @Controller('/accounts')
+@ApiTags('ChatPlay')
 export class AccountController {
   constructor(
     private registerUser: RegisterUserUseCase,
@@ -35,6 +47,20 @@ export class AccountController {
   @Public()
   @HttpCode(201)
   @UsePipes(new ZodValidationPipe(accountSchema))
+  //Swagger
+  @ApiOperation({ summary: 'Create User' })
+  @ApiResponse({
+    status: 201,
+    description: 'Created User',
+    type: User
+  })
+  @ApiCreatedResponse({ description: 'Created Succesfully' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request' })
+  @ApiBody({
+    type: User,
+    description: 'Json structure for User object'
+  })
+  //Fim do Swagger
   async handleCreateAccount(@Body() body: AccountBodySchema) {
     const { name, email, password } = body;
 
@@ -53,8 +79,18 @@ export class AccountController {
       }
     }
   }
+
   @Get('/:email')
   @HttpCode(200)
+  //Swagger
+  @ApiOperation({ summary: 'Find users by email' })
+  @ApiResponse({
+    status: 200,
+    description: 'Users found',
+    type: User
+  })
+  @ApiBearerAuth('defaultBearerAuth')
+  //Fim do Swagger
   async handleFetchUsersByEmail(@Param('email') email: string) {
     const result = await this.getUsersByEmail.execute({ email });
     if (result.isLeft()) {
@@ -67,6 +103,15 @@ export class AccountController {
   }
   @Get('/id/:userId')
   @HttpCode(200)
+  //Swagger
+  @ApiOperation({ summary: 'Find user by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'User found',
+    type: User
+  })
+  @ApiBearerAuth('defaultBearerAuth')
+  //Fim do Swagger
   async handleGetUserById(@Param('userId') id: string) {
     const result = await this.getUserById.execute({ id });
     if (result.isLeft()) {

@@ -2,6 +2,7 @@ import { AggregateRoot } from '@/core/entities/aggregate-root';
 import { ChatUserList } from './chat-user-list';
 import { Optional } from '@/core/types/optional';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
+import { ApiProperty } from '@nestjs/swagger';
 export interface ChatProps {
   name: string;
   users: ChatUserList;
@@ -10,9 +11,17 @@ export interface ChatProps {
   updatedAt?: Date | null;
 }
 export class Chat extends AggregateRoot<ChatProps> {
+  @ApiProperty({
+    example: 'Soccer Sunday',
+    description: 'The name of the chat'
+  })
   get name() {
     return this.props.name;
   }
+  @ApiProperty({
+    example: [new UniqueEntityID().toString(), new UniqueEntityID().toString()],
+    description: 'Users ids'
+  })
   get users() {
     return this.props.users;
   }

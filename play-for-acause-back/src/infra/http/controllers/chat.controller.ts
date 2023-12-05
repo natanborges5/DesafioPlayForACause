@@ -16,6 +16,16 @@ import { FetchRecentChatsUseCase } from '@/domain/application/use-cases/chat/fet
 import { FetchUserRecentChatsUseCase } from '@/domain/application/use-cases/chat/fetch-user-recent-chats';
 import { Public } from '@/infra/auth/public';
 import { Observable, from, interval, map, switchMap } from 'rxjs';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiUnprocessableEntityResponse
+} from '@nestjs/swagger';
+import { Chat } from '@/domain/enterprise/entities/chat';
 
 const chatSchema = z.object({
   name: z.string(),
@@ -36,6 +46,8 @@ const queryValidationPipe = new ZodValidationPipe(pageQueryParamSchema);
 type PageQueryParamSchema = z.infer<typeof pageQueryParamSchema>;
 type ChatBodySchema = z.infer<typeof chatSchema>;
 @Controller('/chats')
+@ApiTags('ChatPlay')
+@ApiBearerAuth('defaultBearerAuth')
 export class ChatController {
   constructor(
     private createChat: CreateChatUseCase,
@@ -43,6 +55,14 @@ export class ChatController {
     private fetchUserRecentChats: FetchUserRecentChatsUseCase
   ) {}
   @Get()
+  //Swagger
+  @ApiOperation({ summary: 'Fetch recent chats' })
+  @ApiResponse({
+    status: 200,
+    description: 'Chats found',
+    type: [Chat]
+  })
+  //Fim do Swagger
   async handleFetchRecentChats(
     @Query('page', queryValidationPipe) page: PageQueryParamSchema
   ) {
@@ -56,6 +76,14 @@ export class ChatController {
     };
   }
   @Get('/user')
+  //Swagger
+  @ApiOperation({ summary: 'Find users recent chats by user id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Chats found',
+    type: [Chat]
+  })
+  //Fim do Swagger
   async handleFetchUserRecentChats(
     @Query('page', queryValidationPipe) page: PageQueryParamSchema,
     @Query('userId', userQueryValidationPipe) userId: UserQueryParamSchema
@@ -71,6 +99,20 @@ export class ChatController {
   }
   @Post()
   @HttpCode(201)
+  //Swagger
+  @ApiOperation({ summary: 'Create Chat' })
+  @ApiResponse({
+    status: 201,
+    description: 'Created Chat',
+    type: Chat
+  })
+  @ApiCreatedResponse({ description: 'Created Succesfully' })
+  @ApiUnprocessableEntityResponse({ description: 'Bad Request' })
+  @ApiBody({
+    type: Chat,
+    description: 'Json structure for Chat object'
+  })
+  //Fim do Swagger
   async handlePostChat(
     @Body(new ZodValidationPipe(chatSchema)) body: ChatBodySchema
   ) {
@@ -83,8 +125,18 @@ export class ChatController {
       throw new BadRequestException(result.value.message);
     }
   }
+  /* The `sse` method in the `ChatController` class is a server-sent events (SSE) endpoint that allows
+clients to subscribe to real-time updates for recent chats by a specific user. */
   @Public()
   @Sse('/sse')
+  //Swagger
+  @ApiOperation({ summary: 'SSE for recent chats by user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Chats found',
+    type: [Chat]
+  })
+  //Fim do Swagger
   sse(
     @Query('userId') userId: string,
     @Query('page') page: number
