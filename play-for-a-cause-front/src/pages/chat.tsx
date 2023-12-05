@@ -43,32 +43,38 @@ const cssScrollBar = {
 export default function Chat() {
     const [isLoading, setIsLoading] = useState(false);
     const [chatSelectedPage, setChatSelectedPage] = useState(1);
+    const [chatTotalNumberOfPage, setChatTotalNumberOfPage] = useState(1);
     const [localChats, setLocalChats] = useState<ChatsWithLastMessageDetailed[]>()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { user, verifyUser } = useContext(AuthContext)
     const [selectedChat, setSelectedChat] = useState<ChatsWithLastMessageDetailed>()
     const [messageContent, setMessageContent] = React.useState('')
+    const [sse, setSSE] = useState<EventSource | null>(null);
     const toast = useToast()
     async function fetchUserChats() {
-        const sse = new EventSource(`http://localhost:3333/chats/sse?userId=${user?.id}&page=${chatSelectedPage}`);
+        if (sse) {
+            sse.close();
+        }
+        const newSSE = new EventSource(`http://localhost:3333/chats/sse?userId=${user?.id}&page=${chatSelectedPage}`);
+        setSSE(newSSE)
         async function getRealtimeData(event: MessageEvent) {
             const chatDetailed: ChatsWithLastMessageDetailed[] = []
             try {
                 const data = JSON.parse(event.data);
-                if (Array.isArray(data.data.chats)) {
-                    const chats: ChatDto[] = data.data.chats
-                    for (const chat of chats) {
-                        const newChatDetaild: ChatsWithLastMessageDetailed = {
-                            ...chat,
-                            lastMessage: undefined
-                        }
-                        if (chat.lastMessage) {
-                            const response = await api.get(`/messages/${chat.lastMessage}`)
-                            newChatDetaild.lastMessage = response.data.message
-                        }
-                        chatDetailed.push(newChatDetaild)
+                const chats: ChatDto[] = data.data.chats
+                setChatTotalNumberOfPage(data.data.totalPages)
+                for (const chat of chats) {
+                    const newChatDetaild: ChatsWithLastMessageDetailed = {
+                        ...chat,
+                        lastMessage: undefined
                     }
+                    if (chat.lastMessage) {
+                        const response = await api.get(`/messages/${chat.lastMessage}`)
+                        newChatDetaild.lastMessage = response.data.message
+                    }
+                    chatDetailed.push(newChatDetaild)
                 }
+
             } catch (error) {
                 const isAppError = error instanceof AppError
                 const title = isAppError
@@ -86,13 +92,12 @@ export default function Chat() {
                 setIsLoading(false);
             }
         }
-        sse.onmessage = getRealtimeData;
-        sse.onerror = () => {
-            sse.close();
+        newSSE.onmessage = getRealtimeData;
+        newSSE.onerror = () => {
+            newSSE.close();
         };
-
         return () => {
-            sse.close();
+            newSSE.close();
         };
     }
     async function sendMessage() {
@@ -120,9 +125,13 @@ export default function Chat() {
         }
     }
     useEffect(() => {
-        verifyUser()
         fetchUserChats()
-    }, []);
+        return () => {
+            if (sse) {
+                sse.close();
+            }
+        };
+    }, [chatSelectedPage]);
     return (
         <Box>
             <Header />
@@ -161,7 +170,12 @@ export default function Chat() {
                             color="gray.100"
                             fontSize="28"
                             variant="unstyled"
-                            onClick={() => setChatSelectedPage((prevPage) => Math.max(1, prevPage + 1))}
+                            onClick={() => {
+                                if (chatSelectedPage < chatTotalNumberOfPage) {
+                                    setChatSelectedPage((prevPage) => Math.max(1, prevPage + 1))
+                                }
+
+                            }}
                             ml="auto"
                             _hover={{
                                 color: 'yellow.500',
