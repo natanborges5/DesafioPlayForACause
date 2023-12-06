@@ -2,6 +2,8 @@
 
 Você foi contratado para implementar uma aplicação de chat. Esta solução deverá prover um mecanismo de autenticação simples, contando com o cadastro do usuário indicando um email, nome de usuário e senha. A aplicação deverá armazenar as mensagens enviadas pelos usuários, que também deverão receber em tempo real as mensagens enviadas pelos demais usuários.
 
+Aplicação na versel:https://desafio-play-for-a-cause-natanborges5s-projects.vercel.app/
+O back-end da aplicação está rodando na [**Railway**](https://railway.app/)
 Recomendações
 
 - Linguagem: NodeJS + Typescript
