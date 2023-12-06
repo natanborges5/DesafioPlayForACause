@@ -5,10 +5,10 @@ Você foi contratado para implementar uma aplicação de chat. Esta solução de
 Aplicação na versel: https://desafio-play-for-a-cause-natanborges5s-projects.vercel.app/ <br><br>
 O back-end da aplicação está rodando na [**Railway**](https://railway.app/) <br><br>
 
-• Desenvolvimento: Durante o desenvolvimento tive dificuldades para usar websockets, então decidi trocar por SSE(Server Sent Event), foi a primeira vez que implementei essa tecnologia que possibilita o cliente receber atualizações da API por HTTP. <br>
-Desenvolvi o back-end com os fundamentos do DDD e Clean Architecture, também criei testes unitários e End-to-End conforme o desenvolvimento dos casos de uso.
+- Desenvolvimento: Durante o desenvolvimento tive dificuldades para usar websockets, então decidi trocar por SSE(Server Sent Event), foi a primeira vez que implementei essa tecnologia que possibilita o cliente receber atualizações da API por HTTP.
+Desenvolvi o back-end com os fundamentos do DDD e Clean Architecture, também criei testes unitários e End-to-End conforme o desenvolvimento dos casos de uso.  <br>
 
-• Plano de continuidade: Para melhorar a aplicação poderia ser implementado o envio de imagens com AWS S3.
+- Plano de continuidade: Para melhorar a aplicação poderia ser implementado o envio de imagens com AWS S3.
 
 Recomendações
 
