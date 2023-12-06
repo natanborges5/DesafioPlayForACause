@@ -1,19 +1,25 @@
 import { ChatMessageDto } from '@/Types/ChatMessageDto'
-import { Box, Button, Center, Flex, IconButton, Spacer, Spinner, Text, useDisclosure, useToast } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, Grid, GridItem, IconButton, Input, InputGroup, InputRightElement, Spacer, Spinner, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import { useEffect, useState, useContext } from 'react'
 import { MessageBox } from './Message';
 import { AuthContext } from '@/contexts/AuthContext';
 import React from 'react';
 import { AppError } from '@/utils/AppError';
-import { ChatsWithLastMessageDetailed } from '@/pages/chat';
+import { ChatsWithLastMessageDetailed, cssScrollBar } from '@/pages/chat';
 import { UserDto } from '@/Types/UserDto';
 import { FaUsers } from "react-icons/fa";
 import { UsersOnChatsModal } from '../Users';
 import { ApiBaseUrl, api } from '@/services/api';
+import { MdSend } from 'react-icons/md';
 type ApiResponse = {
     messages: ChatMessageDto[];
     totalPages: number;
 };
+type NewMessageProps = {
+    authorId: string
+    chatId: string
+    content: string
+}
 export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     const [messages, setMessages] = useState<ChatMessageDto[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -23,6 +29,7 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { user } = useContext(AuthContext)
     const toast = useToast()
+    const [messageContent, setMessageContent] = React.useState('')
     useEffect(() => {
         setIsLoading(true);
         getUsersDetails()
@@ -126,10 +133,48 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
         setChatMessagePage((prev) => prev + 1);
         await getRealOldMessagesData()
     }
+    async function sendMessage() {
+        try {
+            if (user) {
+                const newMessage: NewMessageProps = {
+                    authorId: user?.id,
+                    chatId: chat.id,
+                    content: messageContent
+                }
+                await api.post("/messages", newMessage)
+            }
+            setMessageContent("")
+        } catch (error) {
+            const isAppError = error instanceof AppError
+            const title = isAppError
+                ? error.message
+                : 'Não foi possível enviar a mensagem. Tente novamente mais tarde.'
+            toast({
+                title,
+                status: 'error',
+                duration: 6000,
+                isClosable: true,
+            })
+        }
+    }
+    const handleKeyDown = (event: { key: string; preventDefault: () => void; }) => {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Evita quebra de linha no input
+            sendMessage();
+        }
+    };
     return (
-        <Box>
-            {isLoading ? <Center h={"70vh"}><Spinner size={"lg"} /></Center> :
-                <Box>
+        <>
+            {isLoading ? <Center h={"70vh"}><Spinner size={"lg"} /></Center> : <Grid
+                h="100%"
+                templateRows='repeat(20, 1fr)'
+                templateColumns='repeat(5, 1fr)'
+                gap={2}
+            >
+                <GridItem
+                    rowSpan={{ base: 2, md: 2 }}
+                    colSpan={{ base: 5, md: 5 }}
+                >
                     <Flex alignItems={"center"} align={"center"} justify={"center"}>
                         <Text
                             fontSize={{ base: '2xl', md: '2xl' }}
@@ -151,7 +196,14 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
 
                         </IconButton>
                     </Flex>
-
+                </GridItem>
+                <GridItem
+                    overflowY="auto"
+                    css={cssScrollBar}
+                    p={2}
+                    rowSpan={{ base: 14, md: 16 }}
+                    colSpan={{ base: 5, md: 5 }}
+                >
                     {messages.length > 0 ? (
                         messages.map((message, index) => {
                             const authorUser = usersOnChat.find((user) => user.id === message.authorId);
@@ -171,14 +223,35 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
                     ) : (
                         <Text>Nenhuma mensagem enviada.</Text>
                     )}
-                </Box>
-            }
-            <UsersOnChatsModal
-                isOpen={isOpen}
-                onClose={onClose}
-                users={usersOnChat}
-            />
-        </Box>
+                </GridItem>
+                <GridItem
+                    rowSpan={{ base: 5, md: 2 }}
+                    colSpan={{ base: 5, md: 5 }}
+                >
+                    <InputGroup size='lg' mt={"auto"}>
+                        <Input
+                            pr='4.5rem'
+                            placeholder='Digite a sua mensagem'
+                            borderColor={"yellow.400"}
+                            focusBorderColor='yellow.400'
+                            value={messageContent}
+                            onChange={(event) => setMessageContent(event.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                        <InputRightElement width='4.5rem'>
+                            <Button backgroundColor={"yellow.400"} h='1.75rem' size='sm' onClick={sendMessage}>
+                                <MdSend />
+                            </Button>
+                        </InputRightElement>
+                    </InputGroup>
+                </GridItem>
 
+                <UsersOnChatsModal
+                    isOpen={isOpen}
+                    onClose={onClose}
+                    users={usersOnChat}
+                />
+            </Grid>}
+        </>
     )
 }

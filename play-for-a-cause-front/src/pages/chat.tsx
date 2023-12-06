@@ -8,11 +8,12 @@ import { Header } from '@/components/Header';
 import { AuthContext } from '@/contexts/AuthContext';
 import { ApiBaseUrl, api } from '@/services/api';
 import { AppError } from '@/utils/AppError';
-import { Box, Button, Flex, Grid, GridItem, HStack, Heading, IconButton, Input, InputGroup, InputRightElement, useDisclosure, useToast, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, GridItem, HStack, Heading, IconButton, Input, InputGroup, InputRightElement, useDisclosure, useToast, Text, useBreakpointValue } from '@chakra-ui/react';
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { MdSend } from 'react-icons/md';
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import MessageDrawer from '@/components/Chat/LongChatDrawer';
 type NewMessageProps = {
     authorId: string
     chatId: string
@@ -28,7 +29,7 @@ export type ChatsWithLastMessageDetailed = {
 }
 const MemoizedShortChatCard = memo(ShortChatCard)
 const MemoizedLongChatCard = memo(LongChat)
-const cssScrollBar = {
+export const cssScrollBar = {
     '&::-webkit-scrollbar': {
         width: '0px', // Largura da barra de rolagem
     },
@@ -46,11 +47,17 @@ export default function Chat() {
     const [chatTotalNumberOfPage, setChatTotalNumberOfPage] = useState(1);
     const [localChats, setLocalChats] = useState<ChatsWithLastMessageDetailed[]>()
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const { isOpen: isOpenDrawer, onOpen: onOpenDrawer, onClose: onCloseDrawer } = useDisclosure()
     const { user, verifyUser } = useContext(AuthContext)
     const [selectedChat, setSelectedChat] = useState<ChatsWithLastMessageDetailed>()
     const [messageContent, setMessageContent] = React.useState('')
     const [sse, setSSE] = useState<EventSource | null>(null);
     const toast = useToast()
+    const size = useBreakpointValue({
+        base: 'small',
+        md: 'medium',
+        lg: 'large',
+    })
     async function fetchUserChats() {
         if (sse) {
             sse.close();
@@ -100,36 +107,10 @@ export default function Chat() {
             newSSE.close();
         };
     }
-    async function sendMessage() {
-        try {
-            if (user && selectedChat) {
-                const newMessage: NewMessageProps = {
-                    authorId: user?.id,
-                    chatId: selectedChat.id,
-                    content: messageContent
-                }
-                await api.post("/messages", newMessage)
-            }
-            setMessageContent("")
-        } catch (error) {
-            const isAppError = error instanceof AppError
-            const title = isAppError
-                ? error.message
-                : 'Não foi possível enviar a mensagem. Tente novamente mais tarde.'
-            toast({
-                title,
-                status: 'error',
-                duration: 6000,
-                isClosable: true,
-            })
-        }
+    function handleChatClick(chat: ChatsWithLastMessageDetailed, onOpenDrawer: () => void) {
+        setSelectedChat(chat)
+        onOpenDrawer()
     }
-    const handleKeyDown = (event: { key: string; preventDefault: () => void; }) => {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Evita quebra de linha no input
-            sendMessage();
-        }
-    };
     useEffect(() => {
         fetchUserChats()
         return () => {
@@ -148,7 +129,7 @@ export default function Chat() {
                 gap={4}
             >
                 <GridItem
-                    rowSpan={{ base: 4, md: 10 }}
+                    rowSpan={{ base: 10, md: 10 }}
                     colSpan={{ base: 10, md: 1 }}
                     bg="gray.800"
                     borderRadius={'md'}
@@ -189,7 +170,7 @@ export default function Chat() {
                         </IconButton>
                     </Flex>
 
-                    <Flex direction={{ base: "row", md: "column" }} p={2} mt={6}
+                    <Flex direction={"column"} p={2} mt={6}
                         css={cssScrollBar}
                         h={"80%"}
                         overflowY="auto">
@@ -199,50 +180,30 @@ export default function Chat() {
                                 author={chat.lastMessage ? new Date(chat.lastMessage.createdAt).toLocaleString() : ""}
                                 name={chat.name}
                                 message={chat.lastMessage ? chat.lastMessage.content : "Mande a primeira mensagem!"}
-                                onClick={() => { setSelectedChat(chat) }}
+                                onClick={() => {
+                                    setSelectedChat(chat)
+                                    onOpenDrawer()
+                                }}
                             />
                         ))}
                     </Flex>
                 </GridItem>
-                <GridItem
-                    rowSpan={{ base: 4, md: 8 }}
-                    colSpan={{ base: 10, md: 4 }}
-                    bg="gray.800"
-                    p={6}
-                    borderRadius={'md'}
-                    overflowY="auto"
-                    css={cssScrollBar}
-                >
-                    {selectedChat && (
-                        <MemoizedLongChatCard
-                            chat={selectedChat}
-                        />
-                    )}
-                </GridItem>
-                <GridItem
-                    rowSpan={{ base: 2, md: 4 }}
-                    colSpan={{ base: 10, md: 4 }}
-                    px={2}
-                >
-                    {selectedChat && (
-                        <InputGroup size='lg'>
-                            <Input
-                                pr='4.5rem'
-                                placeholder='Digite a sua mensagem'
-                                borderColor={"yellow.400"}
-                                focusBorderColor='yellow.400'
-                                value={messageContent}
-                                onChange={(event) => setMessageContent(event.target.value)}
-                                onKeyDown={handleKeyDown}
-                            />
-                            <InputRightElement width='4.5rem'>
-                                <Button backgroundColor={"yellow.400"} h='1.75rem' size='sm' onClick={sendMessage}>
-                                    <MdSend />
-                                </Button>
-                            </InputRightElement>
-                        </InputGroup>
-                    )}
-                </GridItem>
+                {size !== "small" && selectedChat &&
+                    <GridItem
+                        rowSpan={{ base: 4, md: 10 }}
+                        colSpan={{ base: 10, md: 4 }}
+                        bg="gray.800"
+                        p={6}
+                        borderRadius={'md'}
+                    >
+                        <MemoizedLongChatCard chat={selectedChat} />
+                    </GridItem>
+                }
+                {size === "small" && selectedChat &&
+                    <MessageDrawer chat={selectedChat} isOpen={isOpenDrawer} onClose={onCloseDrawer} />
+                }
+
+
             </Grid>
             <ModalNewChat
                 isOpen={isOpen}
