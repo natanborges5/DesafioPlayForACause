@@ -302,7 +302,7 @@ export default function MessageDrawer({
                     </Grid>}
                 </DrawerBody>
                 <DrawerFooter>
-                    <Button colorScheme='red'>Voltar</Button>
+                    <Button onClick={onClose} colorScheme='red'>Voltar</Button>
                 </DrawerFooter>
             </DrawerContent>
         </Drawer>
