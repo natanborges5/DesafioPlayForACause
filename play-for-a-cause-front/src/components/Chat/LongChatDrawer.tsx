@@ -202,12 +202,6 @@ export default function MessageDrawer({
         >
             <DrawerOverlay />
             <DrawerContent pt={10} backgroundColor={'gray.800'}>
-                <DrawerCloseButton
-                    size={'lg'}
-                    mt={1}
-                    backgroundColor={'yellow.400'}
-                    mr={4}
-                />
                 <DrawerBody color={'gray.200'}>
                     {isLoading ? <Center h={"70vh"} ><Spinner size={"lg"} /></Center> : <Grid
                         h="100%"
@@ -247,7 +241,7 @@ export default function MessageDrawer({
                                 overflowY="auto"
                                 css={cssScrollBar}
                                 p={2}
-                                rowSpan={{ base: 14, md: 16 }}
+                                rowSpan={{ base: 16, md: 16 }}
                                 colSpan={{ base: 5, md: 5 }}
                             >
                                 {messages.length > 0 ? (
@@ -273,10 +267,10 @@ export default function MessageDrawer({
                         </>
 
                         <GridItem
-                            rowSpan={{ base: 5, md: 2 }}
+                            rowSpan={{ base: 2, md: 2 }}
                             colSpan={{ base: 5, md: 5 }}
                         >
-                            <InputGroup size='lg' mt={"auto"}>
+                            <InputGroup mt={"auto"}>
                                 <Input
                                     pr='4.5rem'
                                     placeholder='Digite a sua mensagem'
@@ -292,6 +286,12 @@ export default function MessageDrawer({
                                     </Button>
                                 </InputRightElement>
                             </InputGroup>
+                            <DrawerCloseButton
+                                size={'lg'}
+                                mt={1}
+                                backgroundColor={'yellow.400'}
+                                mr={4}
+                            />
                         </GridItem>
 
                         <UsersOnChatsModal
@@ -301,6 +301,9 @@ export default function MessageDrawer({
                         />
                     </Grid>}
                 </DrawerBody>
+                <DrawerFooter>
+                    <Button colorScheme='red'>Voltar</Button>
+                </DrawerFooter>
             </DrawerContent>
         </Drawer>
     )

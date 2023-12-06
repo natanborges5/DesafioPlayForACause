@@ -48,9 +48,8 @@ export default function Chat() {
     const [localChats, setLocalChats] = useState<ChatsWithLastMessageDetailed[]>()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { isOpen: isOpenDrawer, onOpen: onOpenDrawer, onClose: onCloseDrawer } = useDisclosure()
-    const { user, verifyUser } = useContext(AuthContext)
+    const { user } = useContext(AuthContext)
     const [selectedChat, setSelectedChat] = useState<ChatsWithLastMessageDetailed>()
-    const [messageContent, setMessageContent] = React.useState('')
     const [sse, setSSE] = useState<EventSource | null>(null);
     const toast = useToast()
     const size = useBreakpointValue({
@@ -106,10 +105,6 @@ export default function Chat() {
         return () => {
             newSSE.close();
         };
-    }
-    function handleChatClick(chat: ChatsWithLastMessageDetailed, onOpenDrawer: () => void) {
-        setSelectedChat(chat)
-        onOpenDrawer()
     }
     useEffect(() => {
         fetchUserChats()
