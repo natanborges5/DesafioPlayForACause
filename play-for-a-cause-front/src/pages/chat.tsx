@@ -6,7 +6,7 @@ import { ModalNewChat } from '@/components/Chat/NewChatModal';
 import { ShortChatCard } from '@/components/Chat/SmallChat';
 import { Header } from '@/components/Header';
 import { AuthContext } from '@/contexts/AuthContext';
-import { api } from '@/services/api';
+import { ApiBaseUrl, api } from '@/services/api';
 import { AppError } from '@/utils/AppError';
 import { Box, Button, Flex, Grid, GridItem, HStack, Heading, IconButton, Input, InputGroup, InputRightElement, useDisclosure, useToast, Text } from '@chakra-ui/react';
 import React, { memo, useContext, useEffect, useState } from 'react';
@@ -55,7 +55,7 @@ export default function Chat() {
         if (sse) {
             sse.close();
         }
-        const newSSE = new EventSource(`http://localhost:3333/chats/sse?userId=${user?.id}&page=${chatSelectedPage}`);
+        const newSSE = new EventSource(`${ApiBaseUrl}chats/sse?userId=${user?.id}&page=${chatSelectedPage}`);
         setSSE(newSSE)
         async function getRealtimeData(event: MessageEvent) {
             const chatDetailed: ChatsWithLastMessageDetailed[] = []

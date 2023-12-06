@@ -6,9 +6,9 @@ import { Router } from 'next/router'
 import { destroyCookie, parseCookies, setCookie } from 'nookies'
 
 let cookies = parseCookies()
-
+export const ApiBaseUrl = "https://desafioplayforacause-production.up.railway.app/"
 export const api = axios.create({
-    baseURL: 'http://localhost:3333',
+    baseURL: ApiBaseUrl,
     headers: {
         Authorization: `${cookies['PlayChat.token']}`,
     },

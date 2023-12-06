@@ -9,7 +9,7 @@ import { ChatsWithLastMessageDetailed } from '@/pages/chat';
 import { UserDto } from '@/Types/UserDto';
 import { FaUsers } from "react-icons/fa";
 import { UsersOnChatsModal } from '../Users';
-import { api } from '@/services/api';
+import { ApiBaseUrl, api } from '@/services/api';
 type ApiResponse = {
     messages: ChatMessageDto[];
     totalPages: number;
@@ -27,7 +27,7 @@ export function LongChat({ chat }: { chat: ChatsWithLastMessageDetailed }) {
         setIsLoading(true);
         getUsersDetails()
         setMessages([])
-        const sse = new EventSource(`http://localhost:3333/messages/sse/${chat.id}?page=1`);
+        const sse = new EventSource(`${ApiBaseUrl}messages/sse/${chat.id}?page=1`);
         sse.onmessage = getRealtimeData;
         sse.onerror = () => {
             sse.close();
